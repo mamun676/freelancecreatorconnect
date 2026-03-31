@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Creator Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{--bg:#0a0a0f;--surface:#13131c;--card:#1a1a27;--border:#2a2a3d;--accent:#f97316;--accent2:#a855f7;--text:#f0f0f8;--muted:#8888aa;--creator:#34d399;--freelancer:#818cf8;--danger:#f43f5e;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;flex-direction:column;}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;border-bottom:1px solid var(--border);background:rgba(10,10,15,.9);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+  .logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;letter-spacing:-.5px;}
+  .logo span{color:var(--accent);}
+  .nav-btns{display:flex;gap:12px;align-items:center;}
+  .btn{padding:10px 22px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;transition:all .2s;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{background:#ea6a00;transform:translateY(-1px);}
+  .btn-purple{background:var(--accent2);color:#fff;}
+  .btn-purple:hover{background:#9333ea;}
+  .btn-green{background:var(--creator);color:#0a0a0f;font-weight:600;}
+  .btn-sm{padding:7px 16px;font-size:.82rem;}
+  .btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger);}
+  .btn-danger:hover{background:var(--danger);color:#fff;}
+  .btn-outline-f{background:transparent;border:1.5px solid var(--freelancer);color:var(--freelancer);}
+  .btn-outline-f:hover{background:var(--freelancer);color:#fff;}
+  .full-btn{width:100%;}
+
+  /* LANDING */
+  .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 20px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,.12) 0%,transparent 70%);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:99px;border:1px solid rgba(249,115,22,.3);background:rgba(249,115,22,.08);color:var(--accent);font-size:.78rem;font-weight:500;margin-bottom:24px;animation:fadeDown .6s ease both;}
+  h1{font-family:'Syne',sans-serif;font-size:clamp(2.4rem,6vw,4.8rem);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:20px;animation:fadeDown .7s .1s ease both;}
+  h1 em{font-style:normal;color:var(--accent);}
+  .hero-sub{color:var(--muted);font-size:1.05rem;max-width:520px;line-height:1.7;margin-bottom:40px;animation:fadeDown .7s .2s ease both;}
+  .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeDown .7s .3s ease both;}
+  .role-cards{display:flex;gap:20px;justify-content:center;margin-top:56px;flex-wrap:wrap;animation:fadeUp .8s .4s ease both;}
+  .role-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 32px;min-width:200px;text-align:center;transition:all .3s;cursor:pointer;}
+  .role-card .icon{font-size:2rem;margin-bottom:10px;}
+  .role-card h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:6px;}
+  .role-card p{color:var(--muted);font-size:.82rem;}
+  .role-card.cc:hover{border-color:var(--creator);transform:translateY(-4px);box-shadow:0 20px 40px rgba(52,211,153,.1);}
+  .role-card.fc:hover{border-color:var(--freelancer);transform:translateY(-4px);box-shadow:0 20px 40px rgba(129,140,248,.1);}
+  .stats-bar{display:flex;gap:40px;justify-content:center;padding:22px 40px;border-top:1px solid var(--border);flex-wrap:wrap;}
+  .stat strong{display:block;font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent);}
+  .stat span{color:var(--muted);font-size:.8rem;}
+
+  /* AUTH */
+  .auth-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+  .auth-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:460px;position:relative;overflow:hidden;}
+  .auth-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));}
+  .auth-tabs{display:flex;margin-bottom:28px;background:var(--surface);border-radius:10px;padding:4px;}
+  .auth-tab{flex:1;padding:9px;text-align:center;border-radius:7px;cursor:pointer;font-size:.88rem;font-weight:500;color:var(--muted);transition:all .2s;}
+  .auth-tab.active{background:var(--card);color:var(--text);}
+  .role-select{display:flex;gap:10px;margin-bottom:22px;}
+  .role-btn{flex:1;padding:11px;border-radius:10px;border:1.5px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;color:var(--muted);transition:all .2s;text-align:center;}
+  .role-btn.ac{border-color:var(--creator);color:var(--creator);background:rgba(52,211,153,.07);}
+  .role-btn.af{border-color:var(--freelancer);color:var(--freelancer);background:rgba(129,140,248,.07);}
+  .fg{margin-bottom:15px;}
+  .fg label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:5px;font-weight:500;}
+  .fg input,.fg select{width:100%;padding:10px 13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border .2s;}
+  .fg input:focus,.fg select:focus{border-color:var(--accent);}
+  .fg select option{background:var(--surface);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .otp-note{font-size:.73rem;color:var(--creator);margin-top:3px;}
+  .upload-area{border:1.5px dashed var(--border);border-radius:8px;padding:16px;text-align:center;cursor:pointer;color:var(--muted);font-size:.82rem;transition:border .2s;}
+  .upload-area:hover{border-color:var(--freelancer);}
+  .form-footer{margin-top:12px;text-align:center;font-size:.82rem;color:var(--muted);}
+  .form-footer a{color:var(--accent);cursor:pointer;}
+
+  /* DASHBOARD */
+  .dash-layout{flex:1;display:grid;grid-template-columns:240px 1fr;min-height:0;}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:4px;}
+  .sb-section{font-size:.69rem;color:var(--muted);font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:14px 10px 5px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:.87rem;transition:all .2s;}
+  .nav-item:hover{background:var(--card);color:var(--text);}
+  .nav-item.active{background:rgba(249,115,22,.12);color:var(--accent);}
+  .nav-item .ni{font-size:1rem;width:20px;text-align:center;}
+  .dash-main{overflow-y:auto;padding:30px 34px;}
+  .page-head{margin-bottom:26px;}
+  .page-head h2{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;}
+  .page-head p{color:var(--muted);font-size:.88rem;margin-top:4px;}
+  .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:26px;}
+  .mc{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:18px;}
+  .mc .label{font-size:.73rem;color:var(--muted);margin-bottom:7px;}
+  .mc .value{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;}
+  .mc .sub{font-size:.72rem;color:var(--muted);margin-top:3px;}
+  .mc.a{border-color:rgba(249,115,22,.3);background:rgba(249,115,22,.04);}
+  .mc.g{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.04);}
+  .mc.p{border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.04);}
+  .section-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:13px;}
+  .project-list{display:flex;flex-direction:column;gap:10px;}
+  .pc{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:16px 18px;display:flex;align-items:center;gap:14px;transition:border .2s;}
+  .pc:hover{border-color:var(--accent);}
+  .pico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;background:var(--surface);flex-shrink:0;}
+  .pinfo{flex:1;}
+  .ptitle{font-weight:600;font-size:.9rem;margin-bottom:3px;}
+  .pmeta{font-size:.76rem;color:var(--muted);}
+  .pstatus{padding:3px 10px;border-radius:99px;font-size:.7rem;font-weight:600;white-space:nowrap;}
+  .s-on{background:rgba(249,115,22,.15);color:var(--accent);}
+  .s-co{background:rgba(52,211,153,.15);color:var(--creator);}
+  .s-pe{background:rgba(129,140,248,.15);color:var(--freelancer);}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .det-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:18px;margin-bottom:13px;}
+  .det-card h4{font-family:'Syne',sans-serif;font-size:.93rem;font-weight:700;margin-bottom:8px;}
+  .det-card p{font-size:.82rem;color:var(--muted);line-height:1.6;}
+  .info-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:.84rem;}
+  .info-row:last-child{border:none;}
+  .info-row .key{color:var(--muted);}
+  .pb{height:6px;background:var(--surface);border-radius:99px;overflow:hidden;margin-top:10px;}
+  .pf{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .5s;}
+  .tag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:.7rem;font-weight:600;background:rgba(249,115,22,.12);color:var(--accent);}
+  .tag.g{background:rgba(52,211,153,.12);color:var(--creator);}
+  .tag.pu{background:rgba(129,140,248,.12);color:var(--freelancer);}
+  .alert{padding:11px 15px;border-radius:9px;font-size:.84rem;margin-bottom:14px;}
+  .alert-s{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);color:var(--creator);}
+  .alert-i{background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);color:var(--freelancer);}
+
+  /* WORKFLOW */
+  .wf-stepper{display:flex;align-items:flex-start;gap:0;margin-bottom:28px;overflow-x:auto;padding-bottom:6px;}
+  .step{display:flex;align-items:center;}
+  .step-dot{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--muted);flex-shrink:0;transition:all .3s;}
+  .step-dot.done{background:var(--creator);border-color:var(--creator);color:#0a0a0f;}
+  .step-dot.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 12px rgba(249,115,22,.4);}
+  .step-line{width:36px;height:2px;background:var(--border);flex-shrink:0;}
+  .step-line.done{background:var(--creator);}
+  .wf-body{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:26px;}
+  .wf-body h3{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:18px;}
+  .f-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;}
+  .f-card{background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:15px;cursor:pointer;text-align:center;transition:all .2s;}
+  .f-card:hover,.f-card.sel{border-color:var(--accent);box-shadow:0 8px 24px rgba(249,115,22,.12);}
+  .f-avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));margin:0 auto 9px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;}
+  .f-name{font-size:.85rem;font-weight:600;margin-bottom:3px;}
+  .f-rate{font-size:.73rem;color:var(--accent);}
+  .f-spec{font-size:.7rem;color:var(--muted);}
+  .stars{color:#fbbf24;font-size:.72rem;}
+  .ct-list{display:flex;gap:9px;flex-wrap:wrap;}
+  .ct-pill{padding:9px 18px;border-radius:99px;border:1.5px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.83rem;color:var(--muted);transition:all .2s;}
+  .ct-pill.active{border-color:var(--accent);color:var(--accent);background:rgba(249,115,22,.08);}
+
+  /* CHAT */
+  .chat-wrap{display:flex;height:460px;background:var(--card);border:1px solid var(--border);border-radius:15px;overflow:hidden;}
+  .chat-list{width:210px;border-right:1px solid var(--border);overflow-y:auto;}
+  .cc-item{padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border);transition:background .2s;}
+  .cc-item:hover,.cc-item.active{background:var(--surface);}
+  .c-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--freelancer),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;flex-shrink:0;}
+  .cc-name{font-size:.83rem;font-weight:500;margin-bottom:2px;}
+  .cc-prev{font-size:.7rem;color:var(--muted);}
+  .chat-area{flex:1;display:flex;flex-direction:column;}
+  .ch-header{padding:13px 17px;border-bottom:1px solid var(--border);font-weight:600;font-size:.88rem;display:flex;align-items:center;gap:9px;}
+  .online-dot{width:7px;height:7px;border-radius:50%;background:var(--creator);}
+  .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+  .msg{max-width:65%;padding:9px 13px;border-radius:11px;font-size:.83rem;line-height:1.5;}
+  .msg.received{background:var(--surface);border-radius:3px 11px 11px 11px;align-self:flex-start;}
+  .msg.sent{background:var(--accent);color:#fff;border-radius:11px 3px 11px 11px;align-self:flex-end;}
+  .chat-inp-bar{padding:11px;border-top:1px solid var(--border);display:flex;gap:8px;}
+  .chat-inp{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;}
+  .chat-inp:focus{border-color:var(--accent);}
+
+  /* RATING */
+  .star-rating{display:flex;gap:5px;font-size:1.7rem;cursor:pointer;margin:8px 0;}
+  .star-rating span{color:var(--border);transition:color .2s;}
+  .star-rating span.lit{color:#fbbf24;}
+
+  /* ANIMS */
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-14px);}to{opacity:1;transform:none;}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  .fade-in{animation:fadeIn .35s ease both;}
+
+  ::-webkit-scrollbar{width:4px;height:4px;}
+  ::-webkit-scrollbar-track{background:var(--surface);}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+  @media(max-width:768px){
+    .dash-layout{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    nav{padding:13px 18px;}
+    .dash-main{padding:18px;}
+    .two-col{grid-template-columns:1fr;}
+    h1{letter-spacing:-1px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ LANDING ══ -->
+<div id="screen-landing" class="screen active">
+  <nav>
+    <div class="logo">Creator<span>Connect</span></div>
+    <div class="nav-btns">
+      <button class="btn btn-ghost" onclick="goAuth('login')">Login</button>
+      <button class="btn btn-primary" onclick="goAuth('signup')">Get Started</button>
+    </div>
+  </nav>
+  <div class="hero">
+    <div class="badge">✦ The #1 platform for video creators</div>
+    <h1>Connect <em>Creators</em><br/>with Pro Editors</h1>
+    <p class="hero-sub">Post your video project, find expert freelance editors, chat in real-time, and get polished content — fast.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" style="font-size:1rem;padding:13px 28px;" onclick="goAuth('signup','creator')">I'm a Creator →</button>
+      <button class="btn btn-purple" style="font-size:1rem;padding:13px 28px;" onclick="goAuth('signup','freelancer')">I'm a Freelancer →</button>
+    </div>
+    <div class="role-cards">
+      <div class="role-card cc" onclick="goAuth('signup','creator')">
+        <div class="icon">🎬</div>
+        <h3>For Creators</h3>
+        <p>Post projects, choose editors, receive polished videos.</p>
+      </div>
+      <div class="role-card fc" onclick="goAuth('signup','freelancer')">
+        <div class="icon">✂️</div>
+        <h3>For Editors</h3>
+        <p>Browse projects, set your rate, grow your portfolio.</p>
+      </div>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat"><strong>12K+</strong><span>Creators</span></div>
+    <div class="stat"><strong>4.8K+</strong><span>Freelancers</span></div>
+    <div class="stat"><strong>98K+</strong><span>Projects Done</span></div>
+    <div class="stat"><strong>4.9★</strong><span>Avg Rating</span></div>
+  </div>
+</div>
+
+<!-- ══ AUTH ══ -->
+<div id="screen-auth" class="screen">
+  <nav>
+    <div class="logo">Creator<span>Connect</span></div>
+    <div class="nav-btns">
+      <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-landing')">← Back</button>
+    </div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="auth-box fade-in">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</div>
+        <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</div>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="form-login">
+        <div class="role-select">
+          <div class="role-btn ac" id="lr-c" onclick="setLRole('creator')">🎬 Creator</div>
+          <div class="role-btn" id="lr-f" onclick="setLRole('freelancer')">✂️ Freelancer</div>
+        </div>
+        <div class="fg"><label>Email Address</label><input type="email" placeholder="you@example.com"/></div>
+        <div class="fg"><label>Password</label><input type="password" placeholder="Enter your password"/></div>
+        <button class="btn btn-primary full-btn" style="margin-top:6px;" onclick="doLogin()">Login →</button>
+        <div class="form-footer">Don't have an account? <a onclick="switchTab('signup')">Sign up free</a></div>
+      </div>
+
+      <!-- SIGNUP -->
+      <div id="form-signup" style="display:none;">
+        <div class="role-select">
+          <div class="role-btn ac" id="sr-c" onclick="setSRole('creator')">🎬 Creator</div>
+          <div class="role-btn" id="sr-f" onclick="setSRole('freelancer')">✂️ Freelancer</div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Full Name</label><input type="text" placeholder="Your name"/></div>
+          <div class="fg"><label>Phone</label><input type="text" placeholder="+91 9XXXXXXX"/></div>
+        </div>
+        <div class="fg"><label>Email Address</label><input type="email" placeholder="you@example.com"/>
+          <div class="otp-note">📱 OTP verification will be sent to your phone</div>
+        </div>
+        <div class="fg"><label>Password</label><input type="password" placeholder="Create a strong password"/></div>
+        <div class="fg"><label>Profession</label>
+          <select><option>Content Creator</option><option>Influencer</option><option>YouTuber</option><option>Brand</option><option>Video Editor</option><option>Motion Designer</option></select>
+        </div>
+        <div id="signup-creator-extra">
+          <div class="fg"><label>Primary Platform</label>
+            <select><option>YouTube</option><option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>Multiple</option></select>
+          </div>
+        </div>
+        <div id="signup-freelancer-extra" style="display:none;">
+          <div class="upload-area" onclick="alert('File picker — upload your resume/portfolio PDF')">📎 Upload Resume / Portfolio (PDF)</div>
+        </div>
+        <button class="btn btn-primary full-btn" style="margin-top:14px;" onclick="doSignup()">Create Account →</button>
+        <div class="form-footer">Already have an account? <a onclick="switchTab('login')">Log in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CREATOR DASHBOARD ══ -->
+<div id="screen-creator" class="screen">
+  <nav>
+    <div class="logo">Creator<span>Connect</span></div>
+    <div class="nav-btns">
+      <span style="color:var(--muted);font-size:.84rem;">Hi, <strong style="color:var(--creator);">Alex Carter</strong></span>
+      <button class="btn btn-ghost btn-sm btn-danger" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div style="padding:8px 10px 14px;">
+        <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--creator),#059669);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;margin-bottom:8px;">A</div>
+        <div style="font-weight:600;font-size:.88rem;">Alex Carter</div>
+        <div style="font-size:.72rem;color:var(--muted);">Creator · YouTube</div>
+      </div>
+      <div class="sb-section">Main</div>
+      <div class="nav-item active" onclick="cPage('home',this)"><span class="ni">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="cPage('new',this)"><span class="ni">➕</span> New Project</div>
+      <div class="nav-item" onclick="cPage('projects',this)"><span class="ni">📁</span> My Projects</div>
+      <div class="sb-section">Work</div>
+      <div class="nav-item" onclick="cPage('chat',this)"><span class="ni">💬</span> Messages</div>
+      <div class="nav-item" onclick="cPage('payment',this)"><span class="ni">💳</span> Payments</div>
+      <div class="nav-item" onclick="cPage('rate',this)"><span class="ni">⭐</span> Rate Freelancer</div>
+      <div class="sb-section">Account</div>
+      <div class="nav-item" onclick="cPage('profile',this)"><span class="ni">👤</span> Profile</div>
+    </aside>
+    <main class="dash-main" id="c-main"></main>
+  </div>
+</div>
+
+<!-- ══ FREELANCER DASHBOARD ══ -->
+<div id="screen-freelancer" class="screen">
+  <nav>
+    <div class="logo">Creator<span>Connect</span></div>
+    <div class="nav-btns">
+      <span style="color:var(--muted);font-size:.84rem;">Hi, <strong style="color:var(--freelancer);">Sam Verma</strong></span>
+      <button class="btn btn-ghost btn-sm btn-danger" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+  <div class="dash-layout">
+    <aside class="sidebar">
+      <div style="padding:8px 10px 14px;">
+        <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--freelancer),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;margin-bottom:8px;">S</div>
+        <div style="font-weight:600;font-size:.88rem;">Sam Verma</div>
+        <div style="font-size:.72rem;color:var(--muted);">Video Editor · 4.9★</div>
+      </div>
+      <div class="sb-section">Main</div>
+      <div class="nav-item active" onclick="fPage('home',this)"><span class="ni">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="fPage('browse',this)"><span class="ni">🔍</span> Browse Projects</div>
+      <div class="nav-item" onclick="fPage('ongoing',this)"><span class="ni">⚡</span> Ongoing</div>
+      <div class="sb-section">Work</div>
+      <div class="nav-item" onclick="fPage('chat',this)"><span class="ni">💬</span> Messages</div>
+      <div class="nav-item" onclick="fPage('negotiate',this)"><span class="ni">🤝</span> Negotiate</div>
+      <div class="nav-item" onclick="fPage('upload',this)"><span class="ni">📤</span> Upload Work</div>
+      <div class="sb-section">Account</div>
+      <div class="nav-item" onclick="fPage('earnings',this)"><span class="ni">💰</span> Earnings</div>
+    </aside>
+    <main class="dash-main" id="f-main"></main>
+  </div>
+</div>
+
+<script>
+/* ── STATE ── */
+let loginRole = 'creator', signupRole = 'creator';
+let wfStep = 0, selContent = '', selFreelancer = null;
+let chatMsgs = [
+  {from:'received',text:'Hi! I saw your project. I specialize in Reels and short-form.'},
+  {from:'sent',text:'Great! Can you share some samples of your recent work?'},
+  {from:'received',text:'Sure! I\'ll send my portfolio. What\'s your target deadline?'},
+];
+
+/* ── SCREENS ── */
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function goAuth(tab,role){showScreen('screen-auth');switchTab(tab);if(role){tab==='signup'?setSRole(role):setLRole(role);}}
+function logout(){showScreen('screen-landing');}
+
+/* ── AUTH ── */
+function switchTab(t){
+  document.getElementById('form-login').style.display=t==='login'?'':'none';
+  document.getElementById('form-signup').style.display=t==='signup'?'':'none';
+  document.getElementById('tab-login').className='auth-tab'+(t==='login'?' active':'');
+  document.getElementById('tab-signup').className='auth-tab'+(t==='signup'?' active':'');
+}
+function setLRole(r){
+  loginRole=r;
+  document.getElementById('lr-c').className='role-btn'+(r==='creator'?' ac':'');
+  document.getElementById('lr-f').className='role-btn'+(r==='freelancer'?' af':'');
+}
+function setSRole(r){
+  signupRole=r;
+  document.getElementById('sr-c').className='role-btn'+(r==='creator'?' ac':'');
+  document.getElementById('sr-f').className='role-btn'+(r==='freelancer'?' af':'');
+  document.getElementById('signup-creator-extra').style.display=r==='creator'?'':'none';
+  document.getElementById('signup-freelancer-extra').style.display=r==='freelancer'?'':'none';
+}
+function doLogin(){
+  if(loginRole==='creator'){showScreen('screen-creator');renderC('home');}
+  else{showScreen('screen-freelancer');renderF('home');}
+}
+function doSignup(){
+  if(signupRole==='creator'){showScreen('screen-creator');renderC('home');}
+  else{showScreen('screen-freelancer');renderF('home');}
+}
+
+/* ── CREATOR ── */
+function cPage(p,el){
+  document.querySelectorAll('#screen-creator .nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderC(p);
+}
+function renderC(p){
+  const m=document.getElementById('c-main');
+  if(p==='home')m.innerHTML=cHome();
+  else if(p==='new'){wfStep=0;m.innerHTML=cNew();}
+  else if(p==='projects')m.innerHTML=cProjects();
+  else if(p==='chat')m.innerHTML=cChat();
+  else if(p==='payment')m.innerHTML=cPayment();
+  else if(p==='rate')m.innerHTML=cRate();
+  else if(p==='profile')m.innerHTML=cProfile();
+}
+
+function cHome(){
+  return `<div class="page-head fade-in"><h2>Dashboard</h2><p>Overview of your creator activity.</p></div>
+  <div class="cards-grid">
+    <div class="mc a"><div class="label">Active Projects</div><div class="value">3</div><div class="sub">↑ 1 this week</div></div>
+    <div class="mc g"><div class="label">Completed</div><div class="value">17</div><div class="sub">All time</div></div>
+    <div class="mc p"><div class="label">Total Spent</div><div class="value">₹48K</div><div class="sub">This year</div></div>
+    <div class="mc"><div class="label">Avg Rating Given</div><div class="value">4.7★</div></div>
+  </div>
+  <div class="section-title">Recent Projects</div>
+  <div class="project-list">
+    ${pRow('🎬','YouTube Vlog – Week 32','Editor: Sam Verma · Due Apr 3','s-on','In Progress')}
+    ${pRow('📱','Instagram Reel Batch (5 reels)','Editor: Priya Nair · Due Apr 5','s-on','In Progress')}
+    ${pRow('🎞','Brand Video – TechCorp','Editor: Rahul Singh · Completed','s-co','Completed')}
+  </div>
+  <div style="margin-top:22px;"><button class="btn btn-primary" onclick="renderC('new');document.querySelectorAll('#screen-creator .nav-item').forEach(n=>n.classList.remove('active'));">+ Post New Project</button></div>`;
+}
+function pRow(ic,t,m,sc,sl){
+  return `<div class="pc"><div class="pico">${ic}</div><div class="pinfo"><div class="ptitle">${t}</div><div class="pmeta">${m}</div></div><div class="pstatus ${sc}">${sl}</div></div>`;
+}
+
+function cNew(){
+  const steps=['Form','Content','Deadline','Freelancer','Chat','Raw Video','Review','Payment'];
+  const stepper=steps.map((s,i)=>{
+    const cls=i<wfStep?'done':i===wfStep?'active':'';
+    const line=i<steps.length-1?`<div class="step-line ${i<wfStep?'done':''}"></div>`:'';
+    return `<div class="step"><div class="step-dot ${cls}">${i<wfStep?'✓':i+1}</div>${line}</div>`;
+  }).join('');
+  return `<div class="page-head fade-in"><h2>Post a New Project</h2><p>Follow the steps to hire the right editor.</p></div>
+  <div class="wf-stepper">${stepper}</div>
+  <div class="wf-body fade-in">${wfContent()}</div>`;
+}
+function wfContent(){
+  if(wfStep===0)return `<h3>📋 Project Details</h3>
+    <div class="fg"><label>Project Title</label><input placeholder="e.g. YouTube Vlog Edit – Travel Series EP5"/></div>
+    <div class="fg"><label>Description</label><input placeholder="Describe what you need edited…"/></div>
+    <div class="fg"><label>Budget (₹)</label><input type="number" placeholder="5000"/></div>
+    <button class="btn btn-primary" onclick="wfN()">Next →</button>`;
+
+  if(wfStep===1)return `<h3>🎬 Choose Content Type</h3>
+    <div class="ct-list">${['YouTube Long-form','Instagram Reel','YouTube Shorts','TikTok','LinkedIn Video','Brand Video','Documentary'].map(t=>`<div class="ct-pill${t===selContent?' active':''}" onclick="selCT('${t}')">${t}</div>`).join('')}</div><br/>
+    <div style="display:flex;gap:10px;margin-top:4px;"><button class="btn btn-ghost" onclick="wfB()">← Back</button><button class="btn btn-primary" onclick="wfN()">Next →</button></div>`;
+
+  if(wfStep===2)return `<h3>📅 Set Project Deadline</h3>
+    <div class="fg"><label>Deadline Date</label><input type="date" min="${new Date().toISOString().split('T')[0]}"/></div>
+    <div class="fg"><label>Priority</label><select><option>Normal</option><option>Urgent (+20% fee)</option><option>Flexible</option></select></div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-ghost" onclick="wfB()">← Back</button><button class="btn btn-primary" onclick="wfN()">Next →</button></div>`;
+
+  if(wfStep===3)return `<h3>🔍 Choose Freelancer</h3>
+    <p style="color:var(--muted);font-size:.83rem;margin-bottom:14px;">Matched editors for <strong style="color:var(--accent);">${selContent||'your content'}</strong></p>
+    <div class="f-grid">${[{n:'Sam Verma',s:'Reels & Shorts',r:'4.9',p:'₹2,500/vid',a:'S'},{n:'Priya Nair',s:'Long-form & YT',r:'4.8',p:'₹4,000/vid',a:'P'},{n:'Rahul Singh',s:'Brand & Corp',r:'4.7',p:'₹6,000/vid',a:'R'},{n:'Meera Das',s:'Motion & VFX',r:'5.0',p:'₹7,500/vid',a:'M'}].map(f=>`<div class="f-card${selFreelancer===f.n?' sel':''}" onclick="selFL('${f.n}')"><div class="f-avatar">${f.a}</div><div class="f-name">${f.n}</div><div class="stars">★★★★★</div><div class="f-rate">${f.r} · ${f.p}</div><div class="f-spec">${f.s}</div></div>`).join('')}</div><br/>
+    <div style="display:flex;gap:10px;"><button class="btn btn-ghost" onclick="wfB()">← Back</button><button class="btn btn-primary" onclick="wfN()">Chat with Editor →</button></div>`;
+
+  if(wfStep===4)return `<h3>💬 Chat with ${selFreelancer||'Freelancer'}</h3>
+    ${buildChat(selFreelancer||'Sam Verma')}
+    <div style="margin-top:14px;display:flex;gap:10px;"><button class="btn btn-ghost" onclick="wfB()">← Back</button><button class="btn btn-primary" onclick="wfN()">Share Raw Video →</button></div>`;
+
+  if(wfStep===5)return `<h3>📤 Share Raw Video</h3>
+    <div class="alert alert-i">📎 Upload your raw footage for ${selFreelancer||'the editor'}</div>
+    <div class="upload-area" style="padding:40px;" onclick="alert('File upload')"><div style="font-size:2rem;margin-bottom:8px;">☁️</div><div style="font-weight:600;margin-bottom:4px;">Drag & drop your raw video</div><div style="color:var(--muted);font-size:.79rem;">MP4, MOV, AVI up to 10GB</div></div>
+    <div style="margin-top:14px;display:flex;gap:10px;"><button class="btn btn-ghost" onclick="wfB()">← Back</button><button class="btn btn-primary" onclick="wfN()">Sent! Await Edit →</button></div>`;
+
+  if(wfStep===6)return `<h3>🎞 Receive & Review Edited Video</h3>
+    <div class="alert alert-s">✅ ${selFreelancer||'Your editor'} has uploaded the edited video!</div>
+    <div style="background:var(--surface);border-radius:11px;padding:18px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:11px;margin-bottom:11px;"><div style="font-size:1.8rem;">🎬</div><div><div style="font-weight:600;">Edited_Final_v2.mp4</div><div style="color:var(--muted);font-size:.78rem;">1.2 GB · 4K 60fps · 12:34 min</div></div></div>
+      <div class="pb"><div class="pf" style="width:100%;"></div></div>
+    </div>
+    <div style="display:flex;gap:10px;"><button class="btn btn-ghost" onclick="wfB()">← Request Revision</button><button class="btn btn-primary" onclick="wfN()">Approve & Pay →</button></div>`;
+
+  if(wfStep===7)return `<h3>💳 Complete Payment & Rate ${selFreelancer||'Freelancer'}</h3>
+    <div class="two-col">
+      <div>
+        <div class="section-title">Payment Summary</div>
+        <div style="background:var(--surface);border-radius:11px;padding:16px;">
+          <div class="info-row"><span class="key">Editor</span><span>${selFreelancer||'Sam Verma'}</span></div>
+          <div class="info-row"><span class="key">Base Amount</span><span>₹2,500</span></div>
+          <div class="info-row"><span class="key">Platform Fee (5%)</span><span>₹125</span></div>
+          <div class="info-row" style="font-weight:700;color:var(--accent);border:none;"><span>Total</span><span>₹2,625</span></div>
+        </div>
+        <div class="fg" style="margin-top:12px;"><label>Payment Method</label><select><option>UPI</option><option>Net Banking</option><option>Credit/Debit Card</option><option>Wallet</option></select></div>
+        <button class="btn btn-green full-btn" onclick="alert('Payment successful! 🎉')">Pay ₹2,625 →</button>
+      </div>
+      <div>
+        <div class="section-title">Rate ${selFreelancer||'the Editor'}</div>
+        <div style="background:var(--surface);border-radius:11px;padding:16px;">
+          <p style="color:var(--muted);font-size:.83rem;margin-bottom:8px;">How was your experience?</p>
+          <div class="star-rating" id="sr1"><span onclick="rateStar('sr1',1)">★</span><span onclick="rateStar('sr1',2)">★</span><span onclick="rateStar('sr1',3)">★</span><span onclick="rateStar('sr1',4)">★</span><span onclick="rateStar('sr1',5)">★</span></div>
+          <div class="fg" style="margin-top:10px;"><label>Write a Review</label><input placeholder="Amazing work, delivered on time!"/></div>
+          <button class="btn btn-primary full-btn" onclick="alert('Review submitted! ⭐')">Submit Review</button>
+        </div>
+      </div>
+    </div>`;
+  return '';
+}
+function wfN(){wfStep=Math.min(wfStep+1,7);document.getElementById('c-main').innerHTML=cNew();}
+function wfB(){wfStep=Math.max(wfStep-1,0);document.getElementById('c-main').innerHTML=cNew();}
+function selCT(t){selContent=t;document.getElementById('c-main').innerHTML=cNew();}
+function selFL(n){selFreelancer=n;document.getElementById('c-main').innerHTML=cNew();}
+function rateStar(id,n){document.querySelectorAll('#'+id+' span').forEach((s,i)=>s.className=i<n?'lit':'');}
+
+function cProjects(){
+  return `<div class="page-head fade-in"><h2>My Projects</h2></div>
+  <div class="project-list">
+    ${pRow('🎬','YouTube Vlog – Week 32','Sam Verma · Due Apr 3 · ₹2,500','s-on','In Progress')}
+    ${pRow('📱','Instagram Reel Batch (5 reels)','Priya Nair · Due Apr 5 · ₹8,000','s-on','In Progress')}
+    ${pRow('🎞','Brand Video – TechCorp','Rahul Singh · Delivered · ₹6,000','s-co','Completed')}
+    ${pRow('🌐','Event Highlights – Annual Day','Meera Das · Awaiting raw video','s-pe','Pending')}
+  </div>`;
+}
+function cChat(){return `<div class="page-head fade-in"><h2>Messages</h2></div>${buildChat('Sam Verma')}`;}
+function buildChat(name){
+  return `<div class="chat-wrap">
+    <div class="chat-list">
+      ${[{n:'Sam Verma',p:'Sure! Sending portfolio…'},{n:'Priya Nair',p:'Files delivered!'},{n:'Rahul Singh',p:'Need raw footage…'}].map((c,i)=>`
+      <div class="cc-item${i===0?' active':''}" onclick="this.parentElement.querySelectorAll('.cc-item').forEach(x=>x.classList.remove('active'));this.classList.add('active');">
+        <div class="c-av">${c.n[0]}</div>
+        <div><div class="cc-name">${c.n}</div><div class="cc-prev">${c.p}</div></div>
+      </div>`).join('')}
+    </div>
+    <div class="chat-area">
+      <div class="ch-header"><div class="c-av" style="width:28px;height:28px;font-size:.7rem;">${name[0]}</div><div class="online-dot"></div>${name} · Online</div>
+      <div class="chat-msgs" id="chat-msgs-el">${chatMsgs.map(m=>`<div class="msg ${m.from}">${m.text}</div>`).join('')}</div>
+      <div class="chat-inp-bar">
+        <input class="chat-inp" id="chat-inp-el" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <button class="btn btn-primary btn-sm" onclick="sendMsg()">Send</button>
+      </div>
+    </div>
+  </div>`;
+}
+function sendMsg(){
+  const inp=document.getElementById('chat-inp-el');
+  if(!inp||!inp.value.trim())return;
+  chatMsgs.push({from:'sent',text:inp.value});inp.value='';
+  const el=document.getElementById('chat-msgs-el');
+  el.innerHTML=chatMsgs.map(m=>`<div class="msg ${m.from}">${m.text}</div>`).join('');
+  el.scrollTop=el.scrollHeight;
+  setTimeout(()=>{
+    chatMsgs.push({from:'received',text:'Got it! I\'ll get started right away 🚀'});
+    el.innerHTML=chatMsgs.map(m=>`<div class="msg ${m.from}">${m.text}</div>`).join('');
+    el.scrollTop=el.scrollHeight;
+  },1200);
+}
+function cPayment(){
+  return `<div class="page-head fade-in"><h2>Payments</h2></div>
+  <div class="cards-grid"><div class="mc a"><div class="label">Pending</div><div class="value">₹10,625</div></div><div class="mc g"><div class="label">Paid This Month</div><div class="value">₹14,500</div></div><div class="mc"><div class="label">Total Spent</div><div class="value">₹48,000</div></div></div>
+  <div class="section-title">Transactions</div>
+  ${[{t:'Sam Verma – Vlog Edit',a:'₹2,625',s:'Pending'},{t:'Priya Nair – Reel Batch',a:'₹8,400',s:'Pending'},{t:'Rahul Singh – Brand Video',a:'₹6,300',s:'Paid'},{t:'Meera Das – Event Highlights',a:'₹5,250',s:'Paid'}].map(x=>`<div class="pc" style="margin-bottom:10px;"><div class="pico">💳</div><div class="pinfo"><div class="ptitle">${x.t}</div><div class="pmeta">${x.a}</div></div><div class="pstatus ${x.s==='Paid'?'s-co':'s-pe'}">${x.s}</div></div>`).join('')}`;
+}
+function cRate(){
+  return `<div class="page-head fade-in"><h2>Rate Freelancer</h2></div>
+  <div class="det-card">
+    <h4>Rate: Rahul Singh – Brand Video</h4>
+    <p>Project completed on Mar 28. Share your experience.</p>
+    <div class="star-rating" id="sr2"><span onclick="rateStar('sr2',1)">★</span><span onclick="rateStar('sr2',2)">★</span><span onclick="rateStar('sr2',3)">★</span><span onclick="rateStar('sr2',4)">★</span><span onclick="rateStar('sr2',5)">★</span></div>
+    <div class="fg" style="margin-top:11px;"><label>Review</label><input placeholder="Excellent work! Professional and timely."/></div>
+    <button class="btn btn-primary" onclick="alert('Review submitted! ⭐')">Submit Review</button>
+  </div>`;
+}
+function cProfile(){
+  return `<div class="page-head fade-in"><h2>My Profile</h2></div>
+  <div class="two-col">
+    <div class="det-card">
+      <h4>Personal Info</h4>
+      <div class="fg"><label>Full Name</label><input value="Alex Carter"/></div>
+      <div class="fg"><label>Email</label><input value="alex@example.com"/></div>
+      <div class="fg"><label>Phone</label><input value="+91 98765 43210"/></div>
+      <div class="fg"><label>Platform</label><select><option>YouTube</option><option>Instagram</option></select></div>
+      <button class="btn btn-primary">Save Changes</button>
+    </div>
+    <div class="det-card">
+      <h4>Stats</h4>
+      <div class="info-row"><span class="key">Projects Posted</span><span>20</span></div>
+      <div class="info-row"><span class="key">Completed</span><span>17</span></div>
+      <div class="info-row"><span class="key">Avg Rating Given</span><span>4.7★</span></div>
+      <div class="info-row"><span class="key">Member Since</span><span>Jan 2024</span></div>
+    </div>
+  </div>`;
+}
+
+/* ── FREELANCER ── */
+function fPage(p,el){
+  document.querySelectorAll('#screen-freelancer .nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderF(p);
+}
+function renderF(p){
+  const m=document.getElementById('f-main');
+  if(p==='home')m.innerHTML=fHome();
+  else if(p==='browse')m.innerHTML=fBrowse();
+  else if(p==='ongoing')m.innerHTML=fOngoing();
+  else if(p==='chat')m.innerHTML=`<div class="page-head fade-in"><h2>Messages</h2></div>${buildChat('Alex Carter')}`;
+  else if(p==='negotiate')m.innerHTML=fNegotiate();
+  else if(p==='upload')m.innerHTML=fUpload();
+  else if(p==='earnings')m.innerHTML=fEarnings();
+}
+function fHome(){
+  return `<div class="page-head fade-in"><h2>Dashboard</h2><p>Your freelancing activity at a glance.</p></div>
+  <div class="cards-grid">
+    <div class="mc a"><div class="label">Ongoing Projects</div><div class="value">4</div></div>
+    <div class="mc g"><div class="label">Earned This Month</div><div class="value">₹22K</div></div>
+    <div class="mc p"><div class="label">Profile Views</div><div class="value">138</div></div>
+    <div class="mc"><div class="label">Rating</div><div class="value">4.9★</div></div>
+  </div>
+  <div class="section-title">Ongoing Projects</div>
+  <div class="project-list">
+    ${pRow('🎬','YouTube Vlog – Alex Carter','Due Apr 3 · ₹2,500 · Raw video received','s-on','In Progress')}
+    ${pRow('📱','Instagram Reel Batch','Due Apr 5 · ₹8,000 · In progress','s-on','In Progress')}
+  </div>
+  <div style="margin-top:20px;"><button class="btn btn-purple" onclick="renderF('browse');document.querySelectorAll('#screen-freelancer .nav-item').forEach(n=>n.classList.remove('active'));">🔍 Browse New Projects</button></div>`;
+}
+function fBrowse(){
+  return `<div class="page-head fade-in"><h2>Browse Projects</h2><p>Accept new editing jobs.</p></div>
+  <div class="project-list">${[{t:'Travel Vlog Edit – Bali Trip',c:'Nisha Kapoor',b:'₹3,500',d:'Apr 8',type:'YouTube'},{t:'Product Launch Reel (30s)',c:'TrendBrand Co.',b:'₹1,800',d:'Apr 6',type:'Reel'},{t:'Wedding Highlights Video',c:'Aryan Mehta',b:'₹12,000',d:'Apr 12',type:'Long-form'},{t:'YouTube Shorts Batch (10)',c:'GadgetGuru',b:'₹4,500',d:'Apr 7',type:'Shorts'}].map(p=>`
+  <div class="pc">
+    <div class="pico">🎬</div>
+    <div class="pinfo"><div class="ptitle">${p.t}</div><div class="pmeta">By ${p.c} · <strong style="color:var(--accent)">${p.b}</strong> · Due ${p.d}</div><div style="margin-top:5px;"><span class="tag">${p.type}</span></div></div>
+    <div style="display:flex;flex-direction:column;gap:6px;"><button class="btn btn-outline-f btn-sm" onclick="alert('Project accepted! Chat with creator to start.')">Accept</button><button class="btn btn-ghost btn-sm">View</button></div>
+  </div>`).join('')}</div>`;
+}
+function fOngoing(){
+  return `<div class="page-head fade-in"><h2>Ongoing Projects</h2></div>
+  <div class="det-card">
+    <h4>YouTube Vlog – Alex Carter</h4>
+    <div class="info-row"><span class="key">Client</span><span>Alex Carter</span></div>
+    <div class="info-row"><span class="key">Content Type</span><span>YouTube Long-form</span></div>
+    <div class="info-row"><span class="key">Deadline</span><span>Apr 3, 2025</span></div>
+    <div class="info-row"><span class="key">Payment</span><span>₹2,500 on delivery</span></div>
+    <div class="info-row"><span class="key">Status</span><span><span class="tag">In Progress</span></span></div>
+    <div class="section-title" style="margin-top:14px;">Progress</div>
+    <div class="pb"><div class="pf" style="width:65%;"></div></div>
+    <div style="font-size:.76rem;color:var(--muted);margin-top:5px;">65% — Color grading in progress</div>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button class="btn btn-outline-f btn-sm" onclick="renderF('chat')">💬 Chat with Client</button>
+      <button class="btn btn-primary btn-sm" onclick="renderF('upload')">📤 Upload Final</button>
+    </div>
+  </div>`;
+}
+function fNegotiate(){
+  return `<div class="page-head fade-in"><h2>Negotiate Price & Deadline</h2></div>
+  <div class="det-card">
+    <h4>YouTube Shorts Batch – GadgetGuru</h4>
+    <p>Client offer: ₹4,500 · Deadline: Apr 7</p>
+    <div class="two-col" style="margin-top:14px;">
+      <div class="fg"><label>Your Price (₹)</label><input type="number" value="5500"/></div>
+      <div class="fg"><label>Your Deadline</label><input type="date" value="2025-04-09"/></div>
+    </div>
+    <div class="fg"><label>Message to Client</label><input placeholder="I can do this for ₹5,500 by Apr 9 due to the volume…"/></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary" onclick="alert('Counter-offer sent!')">Send Counter-Offer</button>
+      <button class="btn btn-green" onclick="alert('Accepted at original terms!')">Accept Original</button>
+    </div>
+  </div>`;
+}
+function fUpload(){
+  return `<div class="page-head fade-in"><h2>Upload Edited Video</h2></div>
+  <div class="det-card">
+    <h4>Upload to: Alex Carter – YouTube Vlog</h4>
+    <div class="upload-area" style="padding:44px;margin:14px 0;" onclick="alert('File upload')">
+      <div style="font-size:2.2rem;margin-bottom:8px;">📤</div>
+      <div style="font-weight:600;margin-bottom:5px;">Drag & drop your final edited video</div>
+      <div style="color:var(--muted);font-size:.8rem;">MP4, MOV · Up to 10GB · H.264 or ProRes</div>
+    </div>
+    <div class="fg"><label>Version Notes</label><input placeholder="v1 – Color graded, audio synced, titles added"/></div>
+    <button class="btn btn-primary" onclick="alert('Video uploaded! Client notified. 🎉')">Upload Final Video →</button>
+  </div>`;
+}
+function fEarnings(){
+  return `<div class="page-head fade-in"><h2>Earnings</h2></div>
+  <div class="cards-grid"><div class="mc g"><div class="label">This Month</div><div class="value">₹22K</div></div><div class="mc a"><div class="label">Pending Payout</div><div class="value">₹10,500</div></div><div class="mc"><div class="label">Total Earned</div><div class="value">₹1.4L</div></div></div>
+  <div class="section-title">Transactions</div>
+  ${[{t:'Alex Carter – Vlog Edit',a:'₹2,500',s:'Received'},{t:'Nisha Kapoor – Travel Vlog',a:'₹3,500',s:'Received'},{t:'TrendBrand – Reel',a:'₹1,800',s:'Pending'},{t:'GadgetGuru – Shorts',a:'₹5,500',s:'Pending'}].map(x=>`<div class="pc" style="margin-bottom:10px;"><div class="pico">💰</div><div class="pinfo"><div class="ptitle">${x.t}</div><div class="pmeta">${x.a}</div></div><div class="pstatus ${x.s==='Received'?'s-co':'s-pe'}">${x.s}</div></div>`).join('')}`;
+}
+
+/* ── INIT ── */
+renderC('home');
+renderF('home');
+</script>
+</body>
+</html>
