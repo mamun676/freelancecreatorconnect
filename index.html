@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>Creator Connect</title>
+<title>Aalynex</title>
 <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -76,15 +76,21 @@ nav{
   flex-shrink:0;gap:8px;
 }
 .logo{
-  font-family:'Outfit',sans-serif;font-size:1.18rem;font-weight:700;
-  letter-spacing:-.4px;display:flex;align-items:center;gap:8px;
+  font-family:'Outfit',sans-serif;font-size:1.22rem;font-weight:800;
+  letter-spacing:-.5px;display:flex;align-items:center;gap:9px;
   flex-shrink:0;
 }
 .logo-icon{
-  width:30px;height:30px;border-radius:8px;
+  width:32px;height:32px;border-radius:9px;
   background:linear-gradient(135deg,var(--accent),#ff8c42);
-  display:flex;align-items:center;justify-content:center;font-size:.9rem;
-  box-shadow:0 4px 12px var(--accent-glow);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:.95rem;
+  box-shadow:0 4px 16px var(--accent-glow);flex-shrink:0;
+  position:relative;
+}
+.logo-icon::after{
+  content:'';position:absolute;inset:-1px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(255,107,53,.5),rgba(255,140,66,.2));
+  z-index:-1;filter:blur(4px);
 }
 .logo span{color:var(--accent);}
 
@@ -197,6 +203,139 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 .role-card p{color:var(--text-2);font-size:.79rem;line-height:1.5;}
 .role-card.cc:hover{border-color:rgba(48,209,88,.4);transform:translateY(-5px);box-shadow:0 20px 40px rgba(48,209,88,.1);}
 .role-card.fc:hover{border-color:rgba(191,90,242,.4);transform:translateY(-5px);box-shadow:0 20px 40px rgba(191,90,242,.1);}
+
+/* ══════════════════════════════════════
+   HOW IT WORKS SECTION
+══════════════════════════════════════ */
+.how-section{
+  padding:64px 24px 48px;
+  text-align:center;
+  animation:fadeUp .7s .35s ease both;
+}
+.section-heading{
+  font-family:'Outfit',sans-serif;
+  font-size:clamp(1.55rem,3.5vw,2.2rem);
+  font-weight:800;
+  letter-spacing:-.5px;
+  margin-bottom:10px;
+}
+.section-heading em{
+  font-style:normal;
+  background:linear-gradient(135deg,var(--accent),#ff8c42);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.section-sub{
+  color:var(--text-3);font-size:.88rem;margin-bottom:36px;
+}
+.how-cards{
+  display:flex;gap:18px;justify-content:center;flex-wrap:wrap;
+  max-width:860px;margin:0 auto;
+  position:relative;
+}
+
+.how-card{
+  background:var(--glass);
+  backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg);
+  padding:28px 24px 24px;
+  flex:1;min-width:190px;max-width:240px;
+  text-align:center;
+  transition:all .3s cubic-bezier(.25,.46,.45,.94);
+  position:relative;
+  overflow:hidden;
+}
+.how-card::before{
+  content:'';position:absolute;inset:0;border-radius:var(--radius-lg);
+  background:radial-gradient(circle at 50% 0%,rgba(255,107,53,.07) 0%,transparent 70%);
+  opacity:0;transition:opacity .3s;
+}
+.how-card:hover{
+  transform:translateY(-6px);
+  border-color:rgba(255,107,53,.35);
+  box-shadow:0 20px 48px rgba(255,107,53,.12);
+}
+.how-card:hover::before{opacity:1;}
+.how-card-icon{
+  width:56px;height:56px;border-radius:16px;
+  background:linear-gradient(135deg,rgba(255,107,53,.15),rgba(255,140,66,.08));
+  border:1px solid rgba(255,107,53,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;margin:0 auto 14px;
+  position:relative;z-index:1;
+}
+.how-card-step{
+  font-family:'Outfit',sans-serif;font-size:.98rem;font-weight:700;
+  margin-bottom:5px;letter-spacing:-.2px;
+  position:relative;z-index:1;
+}
+.how-card-sub{
+  color:var(--text-3);font-size:.78rem;line-height:1.5;
+  position:relative;z-index:1;
+}
+.how-card-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#ff8c42);
+  color:#fff;font-size:.68rem;font-weight:800;
+  position:absolute;top:14px;right:16px;
+  box-shadow:0 2px 8px var(--accent-glow);
+}
+
+/* ══════════════════════════════════════
+   WHY AALYNEX SECTION
+══════════════════════════════════════ */
+.why-section{
+  padding:0 24px 64px;
+  animation:fadeUp .7s .42s ease both;
+}
+.why-inner{max-width:860px;margin:0 auto;}
+.why-cards{
+  display:flex;gap:14px;flex-direction:column;
+}
+.why-card{
+  background:var(--glass);
+  backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:18px 22px;
+  display:flex;align-items:center;gap:16px;
+  transition:all .3s cubic-bezier(.25,.46,.45,.94);
+  position:relative;overflow:hidden;
+}
+.why-card::after{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  border-radius:0 2px 2px 0;opacity:0;transition:opacity .3s;
+}
+.why-card:hover{
+  border-color:var(--glass-border-strong);
+  transform:translateX(4px);
+  box-shadow:0 8px 32px rgba(0,0,0,.2);
+}
+.why-card:hover::after{opacity:1;}
+.why-card-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:1.25rem;
+  flex-shrink:0;
+}
+.why-card-icon.ic-1{background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.2);}
+.why-card-icon.ic-2{background:rgba(10,132,255,.12);border:1px solid rgba(10,132,255,.2);}
+.why-card-icon.ic-3{background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.2);}
+.why-card-text{flex:1;min-width:0;}
+.why-card-title{font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:3px;letter-spacing:-.1px;}
+.why-card-desc{color:var(--text-3);font-size:.78rem;line-height:1.5;}
+.why-card-arrow{color:var(--text-4);font-size:.9rem;flex-shrink:0;transition:transform .2s,color .2s;}
+.why-card:hover .why-card-arrow{transform:translateX(4px);color:var(--accent);}
+
+/* section divider */
+.landing-divider{
+  width:100%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--glass-border),transparent);
+  margin:0 auto;
+  max-width:860px;
+}
+
 .stats-bar{display:flex;gap:0;justify-content:center;border-top:1px solid var(--glass-border);flex-wrap:wrap;padding:0;}
 .stat{padding:18px 32px;text-align:center;border-right:1px solid var(--glass-border);flex:1;min-width:100px;}
 .stat:last-child{border-right:none;}
@@ -460,7 +599,15 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 .divider{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--text-4);font-size:.75rem;}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--glass-border);}
 
-/* ══════════ MOBILE ══════════ */
+/* chat input bar */
+.chat-inp-bar{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--glass-border);background:rgba(255,255,255,.02);}
+.chat-inp{flex:1;padding:8px 12px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;transition:border .2s;}
+.chat-inp:focus{border-color:rgba(255,107,53,.4);background:rgba(255,255,255,.09);}
+.chat-inp::placeholder{color:var(--text-3);}
+
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE
+══════════════════════════════════════ */
 @media(max-width:768px){
   :root{--nav-h:54px;--sidebar-w:260px;}
   nav{padding:0 14px;gap:6px;}
@@ -496,12 +643,21 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
   .toast{min-width:unset;}
   .wf-body{padding:18px 14px;}
   .msg-video-player{max-width:200px;}
+  /* new sections mobile */
+  .how-section{padding:44px 16px 32px;}
+  .why-section{padding:0 16px 44px;}
+  .how-cards{gap:12px;}
+  .how-card{min-width:140px;max-width:100%;padding:20px 16px 18px;}
+  .how-cards::before{display:none;}
+  .section-heading{font-size:1.4rem;}
 }
 @media(max-width:380px){
   .cards-grid{grid-template-columns:1fr;}
   .role-cards{flex-direction:column;align-items:center;}
   .role-card{width:100%;max-width:300px;}
   .hero-cta{flex-direction:column;align-items:stretch;}
+  .how-cards{flex-direction:column;align-items:center;}
+  .how-card{width:100%;max-width:300px;}
 }
 </style>
 </head>
@@ -514,7 +670,7 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 ════════════════════════ -->
 <div id="screen-landing" class="screen active">
   <nav>
-    <div class="logo"><div class="logo-icon">🎬</div>Creator<span>Connect</span></div>
+    <div class="logo"><div class="logo-icon">🎬</div>Aalynex</div>
     <div class="nav-right">
       <button class="btn btn-ghost btn-sm" onclick="goAuth('login')">Login</button>
       <button class="btn btn-primary btn-sm" onclick="goAuth('signup')">Get Started</button>
@@ -540,6 +696,67 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
       </div>
     </div>
   </div>
+
+  <!-- ════ HOW AALYNEX WORKS ════ -->
+  <section class="how-section">
+    <div class="section-heading">How <em>Aalynex</em> Works</div>
+    <p class="section-sub">Three simple steps to get your video edited by a pro</p>
+    <div class="how-cards">
+      <div class="how-card">
+        <span class="how-card-num">1</span>
+        <div class="how-card-icon">🎬</div>
+        <div class="how-card-step">Post Project</div>
+        <div class="how-card-sub">Upload your video brief, set your budget, and describe what you need</div>
+      </div>
+      <div class="how-card">
+        <span class="how-card-num">2</span>
+        <div class="how-card-icon">✂️</div>
+        <div class="how-card-step">Choose Editor</div>
+        <div class="how-card-sub">Browse verified freelancers, compare ratings, and select the best fit</div>
+      </div>
+      <div class="how-card">
+        <span class="how-card-num">3</span>
+        <div class="how-card-icon">🚀</div>
+        <div class="how-card-step">Get Final Video</div>
+        <div class="how-card-sub">Review, approve, and receive your polished edited content — delivered fast</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ WHY AALYNEX ════ -->
+  <section class="why-section">
+    <div class="why-inner">
+      <div class="section-heading" style="text-align:center;margin-bottom:8px;">Why <em>Aalynex</em>?</div>
+      <p class="section-sub" style="text-align:center;">Built for creators who move fast and editors who deliver quality</p>
+      <div class="why-cards">
+        <div class="why-card">
+          <div class="why-card-icon ic-1">⚡</div>
+          <div class="why-card-text">
+            <div class="why-card-title">Fast Turnaround</div>
+            <div class="why-card-desc">Get videos edited within your desired timeframe — from 24 hours to custom deadlines</div>
+          </div>
+          <span class="why-card-arrow">→</span>
+        </div>
+        <div class="why-card">
+          <div class="why-card-icon ic-2">💬</div>
+          <div class="why-card-text">
+            <div class="why-card-title">Direct Editor Chat</div>
+            <div class="why-card-desc">Chat directly with your editor in real-time — no middlemen, no delays, total clarity</div>
+          </div>
+          <span class="why-card-arrow">→</span>
+        </div>
+        <div class="why-card">
+          <div class="why-card-icon ic-3">💸</div>
+          <div class="why-card-text">
+            <div class="why-card-title">100% Secure Payments</div>
+            <div class="why-card-desc">Funds are held in escrow and released only when you approve the final edit</div>
+          </div>
+          <span class="why-card-arrow">→</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="stats-bar">
     <div class="stat"><strong>12K+</strong><span>Creators</span></div>
     <div class="stat"><strong>4.8K+</strong><span>Freelancers</span></div>
@@ -553,7 +770,7 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 ════════════════════════ -->
 <div id="screen-auth" class="screen">
   <nav>
-    <div class="logo"><div class="logo-icon">🎬</div>Creator<span>Connect</span></div>
+    <div class="logo"><div class="logo-icon">🎬</div>Aalynex</div>
     <div class="nav-right">
       <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-landing')">← Back</button>
     </div>
@@ -626,7 +843,7 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 ════════════════════════ -->
 <div id="screen-creator" class="screen">
   <nav>
-    <div class="logo"><div class="logo-icon">🎬</div>Creator<span>Connect</span></div>
+    <div class="logo"><div class="logo-icon">🎬</div>Aalynex</div>
     <div class="nav-right">
       <span class="nav-greeting" id="c-nav-greeting">Hi, <strong id="c-nav-name"></strong></span>
       <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
@@ -670,7 +887,7 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 ════════════════════════ -->
 <div id="screen-freelancer" class="screen">
   <nav>
-    <div class="logo"><div class="logo-icon">🎬</div>Creator<span>Connect</span></div>
+    <div class="logo"><div class="logo-icon">🎬</div>Aalynex</div>
     <div class="nav-right">
       <span class="nav-greeting nav-greeting-f" id="f-nav-greeting">Hi, <strong id="f-nav-name"></strong></span>
       <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
