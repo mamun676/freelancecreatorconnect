@@ -39,7 +39,12 @@
   --nav-h: 62px;
 }
 
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  -webkit-tap-highlight-color:transparent;
+}
 html{scroll-behavior:smooth;}
 body{
   font-family:'DM Sans',system-ui,sans-serif;
@@ -80,6 +85,12 @@ nav{
   letter-spacing:-.5px;display:flex;align-items:center;gap:9px;
   flex-shrink:0;
 }
+.logo-img {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));
+}
 .logo-icon{
   width:32px;height:32px;border-radius:9px;
   background:linear-gradient(135deg,var(--accent),#ff8c42);
@@ -93,11 +104,27 @@ nav{
   z-index:-1;filter:blur(4px);
 }
 .logo span{color:var(--accent);}
+.logo-text {
+  background: linear-gradient(90deg, #ff6b35, #ff8c42);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
 
 .nav-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .nav-greeting{font-size:.8rem;color:var(--text-3);white-space:nowrap;}
 .nav-greeting strong{color:var(--creator);}
+.nav-greeting {
+  background: rgba(255,255,255,0.05);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
 .nav-greeting-f strong{color:var(--freelancer);}
+.nav-greeting {
+  background: rgba(255,255,255,0.05);
+  padding: 6px 12px;
+  border-radius: 999px;
+}
 
 .hamburger{
   display:none;width:36px;height:36px;border-radius:8px;
@@ -120,8 +147,26 @@ nav{
   white-space:nowrap;
 }
 .btn:active{transform:scale(.97);}
-.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 14px var(--accent-glow);}
-.btn-primary:hover{background:#e85d28;box-shadow:0 4px 20px rgba(255,107,53,.4);}
+.btn-primary{
+  position:relative;
+  overflow:hidden;
+}
+
+.btn-primary::after{
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,0.3),transparent);
+  transition:0.5s;
+}
+
+.btn-primary:hover::after{
+  left:100%;
+}
+.btn-primary:hover{background:#e85d28;box-shadow:0 4px 20px rgba(255,107,53,.4); transform: translateY(-2px);}
 .btn-ghost{background:var(--glass);backdrop-filter:var(--blur-sm);border:1px solid var(--glass-border);color:var(--text);}
 .btn-ghost:hover{border-color:var(--glass-border-strong);background:var(--glass-strong);}
 .btn-green-btn{background:var(--green);color:#000;font-weight:600;}
@@ -139,25 +184,72 @@ nav{
 .full-btn{width:100%;}
 
 /* ── FORMS ── */
-.fg{margin-bottom:14px;}
-.fg label{display:block;font-size:.75rem;color:var(--text-2);margin-bottom:5px;font-weight:500;letter-spacing:.01em;}
-.fg input,.fg select,.fg textarea{
-  width:100%;padding:10px 13px;
-  background:rgba(255,255,255,.06);
+.fg{
+  margin-bottom:16px;
+  position:relative;
+}
+
+/* label */
+.fg label{
+  display:block;
+  font-size:.75rem;
+  color:var(--text-2);
+  margin-bottom:6px;
+  font-weight:500;
+  letter-spacing:.02em;
+}
+
+/* input */
+.fg input,
+.fg select,
+.fg textarea{
+  width:100%;
+  padding:12px 14px;
+  background:rgba(255,255,255,0.05);
   border:1px solid var(--glass-border);
-  border-radius:var(--radius-sm);
+  border-radius:12px;
   color:var(--text);
-  font-family:'DM Sans',sans-serif;font-size:.875rem;
-  outline:none;transition:border .2s,background .2s;
+  font-family:'DM Sans',sans-serif;
+  font-size:.88rem;
+  outline:none;
+
+  transition: all 0.25s cubic-bezier(.25,.46,.45,.94);
 }
-.fg input:focus,.fg select:focus,.fg textarea:focus{
-  border-color:rgba(255,107,53,.5);
-  background:rgba(255,255,255,.09);
-  box-shadow:0 0 0 3px rgba(255,107,53,.1);
+
+/* 🔥 HOVER effect */
+.fg input:hover,
+.fg select:hover,
+.fg textarea:hover{
+  border-color:rgba(255,255,255,0.25);
 }
-.fg input::placeholder{color:var(--text-3);}
-.fg select option{background:#1c1c2e;}
-.fg textarea{resize:vertical;min-height:72px;line-height:1.5;}
+
+/* 🔥 FOCUS effect (main magic) */
+.fg input:focus,
+.fg select:focus,
+.fg textarea:focus{
+  border-color:rgba(255,107,53,.6);
+  background:rgba(255,255,255,.08);
+  box-shadow:0 0 0 3px rgba(255,107,53,.15);
+
+  transform: scale(1.02);
+}
+
+/* placeholder */
+.fg input::placeholder{
+  color:var(--text-3);
+  opacity:0.7;
+}
+
+/* select options */
+.fg select option{
+  background:#1c1c2e;
+}
+
+/* textarea */
+.fg textarea{
+  resize:vertical;
+  min-height:80px;
+}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .input-error{border-color:rgba(255,69,58,.5)!important;}
 .field-err{font-size:.72rem;color:var(--red);margin-top:3px;}
@@ -294,13 +386,14 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
   display:flex;gap:14px;flex-direction:column;
 }
 .why-card{
+  animation: fadeUp 0.6s ease both;
   background:var(--glass);
   backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
   border:1px solid var(--glass-border);
   border-radius:var(--radius);
   padding:18px 22px;
   display:flex;align-items:center;gap:16px;
-  transition:all .3s cubic-bezier(.25,.46,.45,.94);
+  transition: all 0.35s cubic-bezier(.25,.46,.45,.94);
   position:relative;overflow:hidden;
 }
 .why-card::after{
@@ -310,9 +403,17 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 }
 .why-card:hover{
   border-color:var(--glass-border-strong);
-  transform:translateX(4px);
-  box-shadow:0 8px 32px rgba(0,0,0,.2);
+  transform: translateX(6px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(255,107,53,0.25);
 }
+/* Mobile */
+@media (hover: none) {
+  .why-card:active {
+    transform: scale(0.97);
+    box-shadow: 0 8px 20px rgba(255,107,53,0.1);
+  }
+}
+
 .why-card:hover::after{opacity:1;}
 .why-card-icon{
   width:44px;height:44px;border-radius:12px;
@@ -325,8 +426,6 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 .why-card-text{flex:1;min-width:0;}
 .why-card-title{font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:3px;letter-spacing:-.1px;}
 .why-card-desc{color:var(--text-3);font-size:.78rem;line-height:1.5;}
-.why-card-arrow{color:var(--text-4);font-size:.9rem;flex-shrink:0;transition:transform .2s,color .2s;}
-.why-card:hover .why-card-arrow{transform:translateX(4px);color:var(--accent);}
 
 /* section divider */
 .landing-divider{
@@ -399,7 +498,7 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 .sb-section{font-size:.67rem;color:var(--text-4);font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:12px 10px 5px;}
 .nav-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text-3);font-size:.85rem;transition:all .2s;}
 .nav-item:hover{background:var(--glass);color:var(--text-2);}
-.nav-item.active{background:rgba(255,107,53,.12);color:var(--accent);border:1px solid rgba(255,107,53,.18);}
+.nav-item.active{background:linear-gradient(90deg, rgba(255,107,53,0.2), transparent); color:var(--accent);border:1px solid rgba(255,107,53,.18); border-left: 3px solid var(--accent); box-shadow: 0 0 20px rgba(255,107,53,0.2);}
 .nav-item .ni{font-size:.95rem;width:18px;text-align:center;}
 .nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:.65rem;font-weight:700;padding:2px 6px;border-radius:99px;min-width:18px;text-align:center;}
 .sb-logout{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--radius-sm);cursor:pointer;color:var(--red);font-size:.85rem;transition:all .2s;margin-top:auto;border:1px solid rgba(255,69,58,.15);background:rgba(255,69,58,.05);}
@@ -413,10 +512,71 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 
 /* ── METRIC CARDS ── */
 .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
-.mc{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:16px;transition:transform .2s,border-color .2s;}
-.mc:hover{transform:translateY(-2px);}
+.mc{
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+  animation: cardIn 0.5s ease forwards;
+  animation: fadeUp 0.5s ease both;
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:16px;
+
+  position: relative;
+  overflow: hidden;
+
+  transition: all 0.3s cubic-bezier(.25,.46,.45,.94);
+}
+@keyframes cardIn{   to{     opacity:1;     transform:translateY(0) scale(1);   } }
+.mc::before{
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,0.15),transparent);
+  transition: all 0.6s;
+}
+.mc:hover{
+  border:1px solid transparent;
+  background:
+    linear-gradient(var(--bg), var(--bg)) padding-box,
+    linear-gradient(135deg, var(--accent), var(--accent2)) border-box;
+}
+@media (hover: hover) {
+  .mc:hover::before{
+    left: 100%;
+    transform: translateY(-6px) scale(1.03);
+    border-color: rgba(255,107,53,0.35);
+
+    box-shadow: 
+      0 20px 50px rgba(0,0,0,0.5),
+      0 0 25px rgba(255,107,53,0.15);
+  }
+
+  .mc.a:hover{ box-shadow: 0 20px 50px rgba(255,107,53,0.4); }
+  .mc.g:hover{ box-shadow: 0 20px 50px rgba(48,209,88,0.4); }
+  .mc.p:hover{ box-shadow: 0 20px 50px rgba(191,90,242,0.4); }
+  .mc.b:hover{ box-shadow: 0 20px 50px rgba(10,132,255,0.4); }
+}
+
+@media (hover: none) {
+  .mc:active{
+    transform: scale(0.96);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  }
+}
+
 .mc .label{font-size:.7rem;color:var(--text-3);margin-bottom:6px;letter-spacing:.02em;}
-.mc .value{font-family:'Outfit',sans-serif;font-size:1.65rem;font-weight:700;letter-spacing:-.5px;}
+.mc .value{transition: transform 0.3 ease; font-family:'Outfit',sans-serif;font-size:1.65rem;font-weight:700;letter-spacing:-.5px;}
+@media (hover: hover){
+  .mc:hover .value{
+    transform: translateY(-3px) scale(1.05);
+  }
+}
+
 .mc .sub{font-size:.7rem;color:var(--text-3);margin-top:3px;}
 .mc.a{border-color:rgba(255,107,53,.25);background:rgba(255,107,53,.06);}
 .mc.a .value{color:var(--accent);}
@@ -427,16 +587,17 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 .mc.b{border-color:rgba(10,132,255,.25);background:rgba(10,132,255,.06);}
 .mc.b .value{color:var(--blue);}
 
+
 /* ── PROJECT CARDS ── */
 .section-title{font-family:'Outfit',sans-serif;font-size:.92rem;font-weight:600;margin-bottom:12px;letter-spacing:-.2px;}
 .project-list{display:flex;flex-direction:column;gap:9px;}
 .pc{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:13px;transition:all .2s;cursor:default;}
-.pc:hover{border-color:var(--glass-border-strong);transform:translateX(2px);}
+.pc:hover{border-color:var(--glass-border-strong); transform:translateX(8px) scale(1.015); box-shadow: 0 12px 30px rgba(0,0,0,0.4);}
 .pico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:var(--glass-strong);flex-shrink:0;}
 .pinfo{flex:1;min-width:0;}
 .ptitle{font-weight:500;font-size:.875rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pmeta{font-size:.73rem;color:var(--text-3);}
-.pstatus{padding:3px 10px;border-radius:99px;font-size:.68rem;font-weight:600;white-space:nowrap;flex-shrink:0;}
+.pstatus{padding:3px 10px;border-radius:99px;font-size:.68rem;font-weight:700;white-space:nowrap;flex-shrink:0;}
 .s-on{background:rgba(255,107,53,.15);color:var(--accent);}
 .s-co{background:rgba(48,209,88,.15);color:var(--creator);}
 .s-pe{background:rgba(10,132,255,.15);color:var(--blue);}
@@ -444,7 +605,11 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 
-.det-card{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:18px;margin-bottom:12px;}
+.det-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+.det-card{animation: fadeUp 0.5s ease both; background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:18px;margin-bottom:12px;}
 .det-card h4{font-family:'Outfit',sans-serif;font-size:.92rem;font-weight:600;margin-bottom:8px;}
 .det-card p{font-size:.8rem;color:var(--text-2);line-height:1.6;}
 .info-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--glass-border);font-size:.82rem;}
@@ -659,6 +824,83 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
   .how-cards{flex-direction:column;align-items:center;}
   .how-card{width:100%;max-width:300px;}
 }
+/* FOLLOW SECTION */
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  backdrop-filter: var(--blur-sm);
+  font-size: .85rem;
+  color: var(--text-2);
+  text-decoration: none;
+  transition: all .25s ease;
+}
+
+.social-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 🔥 hover upgrade */
+.social-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  border-color: rgba(255,107,53,.5);
+  color: var(--accent);
+  background: rgba(255,107,53,.12);
+  box-shadow: 0 8px 25px rgba(255,107,53,.25);
+}
+
+.follow-section{
+  margin-top: 40px;
+  padding-bottom: 50px;
+  border-top: 1px solid var(--glass-border);
+  text-align:center;
+  padding: 40px 20px;
+}
+
+.follow-title{
+  font-family:'Outfit',sans-serif;
+  font-size:1.4rem;
+  font-weight:700;
+  margin-bottom:18px;
+}
+
+.social-links{
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+
+.social-links a{
+  padding:8px 16px;
+  border-radius:999px;
+  border:1px solid var(--glass-border);
+  background:var(--glass);
+  backdrop-filter:var(--blur-sm);
+  font-size:.85rem;
+  color:var(--text-2);
+  cursor:pointer;
+  transition:all .2s;
+  text-decoration:none;   /* 🔥 underline hatane ke liye */
+}
+
+.social-links a:hover{
+  border-color:rgba(255,107,53,.4);
+  color:var(--accent);
+  background:rgba(255,107,53,.08);
+}
+
+.follow-bottom{
+  font-size:.8rem;
+  color:var(--text-3);
+}
 </style>
 </head>
 <body>
@@ -670,7 +912,10 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 ════════════════════════ -->
 <div id="screen-landing" class="screen active">
   <nav>
-    <div class="logo"><div class="logo-icon">🎬</div>Aalynex</div>
+<div class="logo">
+  <img src="aalynex-logo.jpg" class="logo-img">
+  <span class="logo-text">Aalynex</span>
+</div>
     <div class="nav-right">
       <button class="btn btn-ghost btn-sm" onclick="goAuth('login')">Login</button>
       <button class="btn btn-primary btn-sm" onclick="goAuth('signup')">Get Started</button>
@@ -678,9 +923,8 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
   </nav>
   <div class="hero">
     <div class="hero-glow"></div>
-    <div class="badge"><span class="badge-dot"></span> India's #1 Creator Marketplace</div>
     <h1>Connect <em>Creators</em><br/>with Pro Editors</h1>
-    <p class="hero-sub">Post your video project, find expert freelance editors, chat in real-time, and get polished content — delivered fast.</p>
+    <p class="hero-sub">Post Your Video Project, Find Expert Freelance Editors, Chat In Real-Time And Get Polished Content — Delivered Fast.</p>
     <div class="hero-cta">
       <button class="btn btn-primary hero-btn" onclick="goAuth('signup','creator')">I'm a Creator →</button>
       <button class="btn btn-ghost hero-btn" style="border-color:rgba(191,90,242,.4);color:var(--freelancer);" onclick="goAuth('signup','freelancer')">I'm a Freelancer →</button>
@@ -688,11 +932,11 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
     <div class="role-cards">
       <div class="role-card cc" onclick="goAuth('signup','creator')">
         <div class="icon">🎬</div><h3>For Creators</h3>
-        <p>Post projects, choose editors, receive polished videos.</p>
+        <p>Post Projects, Choose Editors, Receive Polished Videos.</p>
       </div>
       <div class="role-card fc" onclick="goAuth('signup','freelancer')">
         <div class="icon">✂️</div><h3>For Editors</h3>
-        <p>Browse projects, set your rate, grow your portfolio.</p>
+        <p>Browse Projects, Set Your Budget, Grow Your Portfolio.</p>
       </div>
     </div>
   </div>
@@ -700,69 +944,94 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
   <!-- ════ HOW AALYNEX WORKS ════ -->
   <section class="how-section">
     <div class="section-heading">How <em>Aalynex</em> Works</div>
-    <p class="section-sub">Three simple steps to get your video edited by a pro</p>
+    <p class="section-sub">Three Simple Steps To Get Your Video Edited By A Pro</p>
     <div class="how-cards">
       <div class="how-card">
         <span class="how-card-num">1</span>
         <div class="how-card-icon">🎬</div>
         <div class="how-card-step">Post Project</div>
-        <div class="how-card-sub">Upload your video brief, set your budget, and describe what you need</div>
+        <div class="how-card-sub">Upload Your Video Brief, Set Your Budget And Describe What You Need</div>
       </div>
       <div class="how-card">
         <span class="how-card-num">2</span>
         <div class="how-card-icon">✂️</div>
         <div class="how-card-step">Choose Editor</div>
-        <div class="how-card-sub">Browse verified freelancers, compare ratings, and select the best fit</div>
+        <div class="how-card-sub">Browse Verified Freelancers, Compare Ratings And Select The Best One</div>
       </div>
       <div class="how-card">
         <span class="how-card-num">3</span>
         <div class="how-card-icon">🚀</div>
         <div class="how-card-step">Get Final Video</div>
-        <div class="how-card-sub">Review, approve, and receive your polished edited content — delivered fast</div>
+        <div class="how-card-sub">Review, Approve And Receive Your Polished Edited Content — Delivered Fast</div>
       </div>
     </div>
   </section>
+  
 
   <!-- ════ WHY AALYNEX ════ -->
   <section class="why-section">
     <div class="why-inner">
       <div class="section-heading" style="text-align:center;margin-bottom:8px;">Why <em>Aalynex</em>?</div>
-      <p class="section-sub" style="text-align:center;">Built for creators who move fast and editors who deliver quality</p>
+      <p class="section-sub" style="text-align:center;">Built For Creators Who Move Fast And Editors Who Deliver Quality</p>
       <div class="why-cards">
         <div class="why-card">
           <div class="why-card-icon ic-1">⚡</div>
           <div class="why-card-text">
             <div class="why-card-title">Fast Turnaround</div>
-            <div class="why-card-desc">Get videos edited within your desired timeframe — from 24 hours to custom deadlines</div>
+            <div class="why-card-desc">Get Videos Edited Within Your Desired Timeframe — From 24 Hours To Custom Deadlines</div>
           </div>
-          <span class="why-card-arrow">→</span>
         </div>
         <div class="why-card">
           <div class="why-card-icon ic-2">💬</div>
           <div class="why-card-text">
             <div class="why-card-title">Direct Editor Chat</div>
-            <div class="why-card-desc">Chat directly with your editor in real-time — no middlemen, no delays, total clarity</div>
+            <div class="why-card-desc">Chat Directly With Your Editor In Real-Time — No Middlemen, No Delays, Total Clarity</div>
           </div>
-          <span class="why-card-arrow">→</span>
         </div>
         <div class="why-card">
           <div class="why-card-icon ic-3">💸</div>
           <div class="why-card-text">
             <div class="why-card-title">100% Secure Payments</div>
-            <div class="why-card-desc">Funds are held in escrow and released only when you approve the final edit</div>
-          </div>
-          <span class="why-card-arrow">→</span>
+            <div class="why-card-desc">Funds Are Held In Escrow And Released Only When You Approve The Final Edit</div>
         </div>
       </div>
     </div>
+    </div>
+    <section class="follow-section">
+  <div class="follow-title">Follow Us On</div>
+
+<div class="social-links">
+
+  <a href="https://youtube.com/@aalynex?si=tRi-d7DgXJtOYoTX" target="_blank" class="social-btn">
+    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M10 15l5-3-5-3v6z"/></svg>
+    YouTube
+  </a>
+
+<a href= "https://www.instagram.com/aalynex?igsh=MTlzZDV2NTBmaGxkdA==" target="_blank" class="social-btn">
+  <svg viewBox="0 0 24 24">
+    <path fill="currentColor" d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-5C8.13 2 7.84 2 6.68 2.07 5.52 2.14 4.6 2.38 3.8 2.75a5.5 5.5 0 00-2.05 1.3A5.5 5.5 0 002.75 6c-.37.8-.61 1.72-.68 2.88C2 10.04 2 10.33 2 14s0 3.96.07 5.12c.07 1.16.31 2.08.68 2.88.37.8.86 1.47 1.3 2.05.58.58 1.25 1.07 2.05 1.3.8.37 1.72.61 2.88.68C10.04 22 10.33 22 14 22s3.96 0 5.12-.07c1.16-.07 2.08-.31 2.88-.68.8-.37 1.47-.86 2.05-1.3.58-.58 1.07-1.25 1.3-2.05.37-.8.61-1.72.68-2.88C26 17.96 26 17.67 26 14s0-3.96-.07-5.12c-.07-1.16-.31-2.08-.68-2.88a5.5 5.5 0 00-1.3-2.05A5.5 5.5 0 0022 2.75c-.8-.37-1.72-.61-2.88-.68C17.96 2 17.67 2 14 2h-2z"/>
+  </svg>
+  Instagram
+</a>
+
+  <a href="https://facebook.com" target="_blank" class="social-btn">
+    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M13 22v-9h3l1-4h-4V7c0-1 0-2 2-2h2V2h-3c-3 0-4 2-4 5v2H7v4h3v9h3z"/></svg>
+    Facebook
+  </a>
+
+  <a href="https://twitter.com" target="_blank" class="social-btn">
+    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M22 5.8c-.7.3-1.4.5-2.2.6.8-.5 1.3-1.2 1.6-2-.8.5-1.6.8-2.5 1-1.5-1.6-4.2-1.4-5.6.3-1 1.2-1.2 2.8-.6 4.2-3.3-.2-6.3-1.8-8.3-4.4-1.1 1.8-.5 4.1 1.3 5.2-.6 0-1.2-.2-1.7-.5 0 2 1.4 3.8 3.4 4.2-.5.1-1 .2-1.5.1.4 1.6 2 2.8 3.7 2.8-1.5 1.2-3.3 1.8-5.2 1.8H2c1.9 1.2 4.1 1.9 6.3 1.9 7.5 0 11.6-6.3 11.6-11.7v-.5c.8-.5 1.5-1.2 2.1-2z"/></svg>
+    Twitter
+  </a>
+
+</div>
+  <div class="follow-bottom">
+    Trusted By Creators Worldwide
+  </div>
+</section>
   </section>
 
-  <div class="stats-bar">
-    <div class="stat"><strong>12K+</strong><span>Creators</span></div>
-    <div class="stat"><strong>4.8K+</strong><span>Freelancers</span></div>
-    <div class="stat"><strong>98K+</strong><span>Projects Done</span></div>
-    <div class="stat"><strong>4.9★</strong><span>Avg Rating</span></div>
-  </div>
+
 </div>
 
 <!-- ════════════════════════
@@ -770,7 +1039,10 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 ════════════════════════ -->
 <div id="screen-auth" class="screen">
   <nav>
-    <div class="logo"><div class="logo-icon">🎬</div>Aalynex</div>
+    <div class="logo">
+  <img src="aalynex-logo.jpg" class="logo-img">
+  <span class="logo-text">Aalynex</span>
+</div>
     <div class="nav-right">
       <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-landing')">← Back</button>
     </div>
@@ -843,10 +1115,12 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 ════════════════════════ -->
 <div id="screen-creator" class="screen">
   <nav>
-    <div class="logo"><div class="logo-icon">🎬</div>Aalynex</div>
+    <div class="logo">
+  <img src="aalynex-logo.jpg" class="logo-img">
+  <span class="logo-text">Aalynex</span>
+</div>
     <div class="nav-right">
       <span class="nav-greeting" id="c-nav-greeting">Hi, <strong id="c-nav-name"></strong></span>
-      <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
       <div class="hamburger" id="c-hamburger" onclick="toggleSidebar('creator')">
         <span></span><span></span><span></span>
       </div>
@@ -859,6 +1133,8 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
         <div class="sb-avatar sb-av-creator" id="c-sb-avatar"></div>
         <div><div class="sb-name" id="c-sb-name"></div><div class="sb-role" id="c-sb-role"></div></div>
       </div>
+      <div class="sb-section">Account</div>
+      <div class="nav-item" data-page="profile" onclick="cPage('profile',this)"><span class="ni">👤</span> Profile</div>
       <div class="sb-section">Main</div>
       <div class="nav-item active" data-page="home" onclick="cPage('home',this)"><span class="ni">🏠</span> Dashboard</div>
       <div class="nav-item" data-page="new" onclick="cPage('new',this)"><span class="ni">➕</span> New Project</div>
@@ -867,9 +1143,7 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
       <div class="nav-item" data-page="chat" onclick="cPage('chat',this)"><span class="ni">💬</span> Messages <span class="nav-badge" id="c-msg-badge" style="display:none;">1</span></div>
       <div class="nav-item" data-page="payment" onclick="cPage('payment',this)"><span class="ni">💳</span> Payments</div>
       <div class="nav-item" data-page="rate" onclick="cPage('rate',this)"><span class="ni">⭐</span> Rate Freelancer</div>
-      <div class="sb-section">Account</div>
-      <div class="nav-item" data-page="profile" onclick="cPage('profile',this)"><span class="ni">👤</span> Profile</div>
-      <div class="sb-logout" onclick="logout()"><span class="ni">🚪</span> Logout</div>
+            <div class="sb-logout" onclick="logout()"><span class="ni">🚪</span> Logout</div>
     </aside>
     <main class="dash-main" id="c-main"></main>
   </div>
@@ -887,7 +1161,10 @@ h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#ff8c42)
 ════════════════════════ -->
 <div id="screen-freelancer" class="screen">
   <nav>
-    <div class="logo"><div class="logo-icon">🎬</div>Aalynex</div>
+    <div class="logo">
+  <img src="aalynex-logo.jpg" class="logo-img">
+  <span class="logo-text">Aalynex</span>
+</div>
     <div class="nav-right">
       <span class="nav-greeting nav-greeting-f" id="f-nav-greeting">Hi, <strong id="f-nav-name"></strong></span>
       <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
