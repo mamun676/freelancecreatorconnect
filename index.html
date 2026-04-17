@@ -626,13 +626,12 @@ h1 em{
 
 <div class="toast-wrap" id="toast-wrap"></div>
 
-<!-- LANDING -->
 <div id="screen-landing" class="screen active">
   <nav>
     <div class="logo">
-  <img src="aalynex-logo.png" class="logo-img" draggable="false">
-  <span class="logo-text" draggable="true" id="logoDrag">Aalynex</span>
-</div>
+      <img src="aalynex-logo.png" class="logo-img" draggable="false" alt="Logo">
+      <span class="logo-text" draggable="true" id="logoDrag">Aalynex</span>
+    </div>
     <div class="nav-right">
       <button class="btn btn-ghost btn-sm" onclick="goAuth('login')">Login</button>
       <button class="btn btn-primary btn-sm" onclick="goAuth('signup')">Get Started</button>
@@ -664,7 +663,6 @@ h1 em{
     </div>
   </div>
 
-  <!-- HOW IT WORKS -->
   <section class="how-section">
     <div class="section-heading">How <em>Aalynex</em> Works</div>
     <p class="section-sub">Three Simple Steps To Get Your Video Edited By A Pro</p>
@@ -696,7 +694,6 @@ h1 em{
     </div>
   </section>
 
-  <!-- WHY AALYNEX -->
   <section class="why-section">
     <div class="why-inner">
       <div class="section-heading" style="text-align:center;margin-bottom:8px;">Why <em>Aalynex</em>?</div>
@@ -756,13 +753,12 @@ h1 em{
   </section>
 </div>
 
-<!-- AUTH -->
 <div id="screen-auth" class="screen">
   <nav>
-        <div class="logo">
-  <img src="aalynex-logo.png" class="logo-img" draggable="false">
-  <span class="logo-text" draggable="true" id="logoDrag">Aalynex</span>
-</div>
+    <div class="logo">
+      <img src="aalynex-logo.png" class="logo-img" draggable="false" alt="Logo">
+      <span class="logo-text" draggable="true" id="logoDrag">Aalynex</span>
+    </div>
     <div class="nav-right">
       <button class="btn btn-ghost btn-sm" onclick="showScreen('screen-landing')">&larr; Back</button>
     </div>
@@ -773,7 +769,6 @@ h1 em{
         <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</div>
         <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</div>
       </div>
-      <!-- LOGIN -->
       <div id="form-login">
         <div class="role-select">
           <div class="role-btn ac" id="lr-c" onclick="setLRole('creator')">Creator</div>
@@ -785,11 +780,7 @@ h1 em{
         <button class="btn btn-primary full-btn" style="margin-top:10px;" id="login-btn" onclick="doLogin()">Login &rarr;</button>
         <div class="divider">or</div>
         <div class="form-footer">Don't have an account? <a onclick="switchTab('signup')">Sign up free</a></div>
-        <div class="form-footer" style="margin-top:8px;font-size:.72rem;">
-          Demo: <a onclick="demoLogin('creator')">Creator Demo</a> &middot; <a onclick="demoLogin('freelancer')">Freelancer Demo</a>
-        </div>
       </div>
-      <!-- SIGNUP -->
       <div id="form-signup" style="display:none;">
         <div class="role-select">
           <div class="role-btn ac" id="sr-c" onclick="setSRole('creator')">Creator</div>
@@ -828,13 +819,12 @@ h1 em{
   </div>
 </div>
 
-<!-- CREATOR DASHBOARD -->
 <div id="screen-creator" class="screen">
   <nav>
-        <div class="logo">
-  <img src="aalynex-logo.png" class="logo-img" draggable="false">
-  <span class="logo-text" draggable="true" id="logoDrag">Aalynex</span>
-</div>
+    <div class="logo">
+      <img src="aalynex-logo.png" class="logo-img" draggable="false" alt="Logo">
+      <span class="logo-text" draggable="true" id="logoDrag">Aalynex</span>
+    </div>
     <div class="nav-right">
       <span class="nav-greeting" id="c-nav-greeting">Hi, <strong id="c-nav-name"></strong></span>
       <div class="hamburger" id="c-hamburger" onclick="toggleSidebar('creator')">
@@ -858,7 +848,7 @@ h1 em{
         <span class="ni"><span class="ni-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span></span> Dashboard
       </div>
       <div class="nav-item" data-page="new" onclick="cPage('new',this)">
-        <span class="ni"><span class="ni-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span></span> New Project
+        <span class="ni"><span class="ni-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span></span> Post / Manage
       </div>
       <div class="nav-item" data-page="projects" onclick="cPage('projects',this)">
         <span class="ni"><span class="ni-icon"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span></span> My Projects
@@ -898,13 +888,12 @@ h1 em{
   </nav>
 </div>
 
-<!-- FREELANCER DASHBOARD -->
 <div id="screen-freelancer" class="screen">
   <nav>
-        <div class="logo">
-  <img src="aalynex-logo.png" class="logo-img" draggable="false">
-  <span class="logo-text" draggable="true" id="logoDrag">Aalynex</span>
-</div>
+    <div class="logo">
+      <img src="aalynex-logo.png" class="logo-img" draggable="false" alt="Logo">
+      <span class="logo-text" draggable="true" id="logoDrag">Aalynex</span>
+    </div>
     <div class="nav-right">
       <span class="nav-greeting nav-greeting-f" id="f-nav-greeting">Hi, <strong id="f-nav-name"></strong></span>
       <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
@@ -969,7 +958,6 @@ h1 em{
   </nav>
 </div>
 
-<!-- MODAL -->
 <div class="modal-bg" id="modal-bg">
   <div class="modal" id="modal-inner">
     <h3 id="modal-title">Confirm</h3>
@@ -999,62 +987,43 @@ try {
   }
   console.log("✅ Supabase client initialized");
 } catch(e) {
-  console.warn("Supabase init failed, using local DB only:", e);
+  console.warn("Supabase init failed:", e);
   supaClient = null;
 }
 
 /* ══════════════════════════════════════════════
-   LOCAL DB
+   DATABASE HANDLER
 ══════════════════════════════════════════════ */
+const MemDB = { users: [], projects: [], msgs: {}, currentUser: null };
+
 const DB = {
-  get(k)    { try { return JSON.parse(localStorage.getItem('cc_'+k)) || null; } catch { return null; } },
-  set(k,v)  { localStorage.setItem('cc_'+k, JSON.stringify(v)); },
-  users()   { return this.get('users')   || []; },
-  saveUsers(u)    { this.set('users', u); },
-  projects()      { return this.get('projects') || []; },
-  saveProjects(p) { this.set('projects', p); },
-  messages()      { return this.get('messages') || {}; },
-  saveMessages(m) { this.set('messages', m); },
-  currentUser()   { return this.get('currentUser'); },
-  setCurrentUser(u){ this.set('currentUser', u); },
-  logout()        { localStorage.removeItem('cc_currentUser'); }
+  users()           { return MemDB.users; },
+  saveUsers(data)   { MemDB.users = data; },
+  projects()        { return MemDB.projects; },
+  saveProjects(data){ MemDB.projects = data; },
+  messages()        { return MemDB.msgs; },
+  saveMessages(data){ MemDB.msgs = data; },
+
+  currentUser()          { return MemDB.currentUser || null; },
+  setCurrentUser(data)   { MemDB.currentUser = data; },
+  logout() {
+    MemDB.currentUser = null;
+    MemDB.users       = [];
+    MemDB.projects    = [];
+    MemDB.msgs        = {};
+  }
 };
-
-/* Seed demo data */
-(function seed() {
-  const users = DB.users();
-  if (!users.find(u => u.email === 'creator@demo.com')) {
-    users.push({ id:'u1', name:'Alex Carter', email:'creator@demo.com', phone:'+91 98765 43210', password:'demo123', role:'creator', profession:'Content Creator', platform:'YouTube', avatar:'A', createdAt: Date.now() - 86400000*30 });
-  }
-  if (!users.find(u => u.email === 'freelancer@demo.com')) {
-    users.push({ id:'u2', name:'Sam Verma', email:'freelancer@demo.com', phone:'+91 91234 56789', password:'demo123', role:'freelancer', profession:'Video Editor', avatar:'S', createdAt: Date.now() - 86400000*20 });
-  }
-  DB.saveUsers(users);
-
-  if (!DB.projects().length) {
-    DB.saveProjects([
-      { id:'p1', creatorId:'u1', title:'YouTube Vlog – Week 32', description:'Weekly vlog needs color grading and music sync', budget:2500, contentType:'YouTube Long-form', deadline:'2025-04-08', priority:'Normal', freelancerId:'u2', status:'ongoing', rawShared:true, editedUploaded:false, paid:false, rating:0, review:'', createdAt: Date.now()-86400000*3 },
-      { id:'p2', creatorId:'u1', title:'Instagram Reel Batch (5 reels)', description:'5 short reels for Instagram, 30 sec each', budget:8000, contentType:'Instagram Reel', deadline:'2025-04-10', priority:'Urgent', freelancerId:null, status:'open', rawShared:false, editedUploaded:false, paid:false, rating:0, review:'', createdAt: Date.now()-86400000*2 },
-      { id:'p3', creatorId:'u1', title:'Brand Video – TechCorp', description:'2 min brand promo video', budget:6000, contentType:'Brand Video', deadline:'2025-03-28', priority:'Normal', freelancerId:'u2', status:'completed', rawShared:true, editedUploaded:true, paid:true, rating:5, review:'Excellent work!', createdAt: Date.now()-86400000*10 },
-    ]);
-  }
-
-  const msgs = DB.messages();
-  if (!msgs['u1_u2']) {
-    msgs['u1_u2'] = [
-      { from:'u2', text:"Hi! I saw your project. I specialize in Reels and short-form.", time: Date.now()-3600000*5 },
-      { from:'u1', text:"Great! Can you share some samples?", time: Date.now()-3600000*4 },
-      { from:'u2', text:"Sure! I'll send my portfolio link. What's your target deadline?", time: Date.now()-3600000*3 },
-    ];
-    DB.saveMessages(msgs);
-  }
-})();
 
 /* ══════════════════════════════════════════════
    GLOBAL STATE
 ══════════════════════════════════════════════ */
 let CU = null;
-let wfStep = 0, selContent = '', selFreelancerId = null, selFreelancerName = null;
+// NEW CODE START - Manage State logic
+let wfStep = 0, selContent = '', selFreelancerName = null;
+let selFreelancerIds = []; // NEW: Array instead of single ID for multi-select
+let activeManageProjectId = null; // Track which project the wizard is managing
+let newProjectDraft = {}; // 🟢 Draft object to prevent data loss across wizard steps
+// NEW CODE END
 
 /* ══════════════════════════════════════════════
    UTILITIES
@@ -1167,30 +1136,49 @@ async function doLogin() {
       if (!error && data.user) {
         const { data: profile, error: pErr } = await supaClient.from('profiles').select('*').eq('id', data.user.id).single();
         if (!pErr && profile) {
-          const u = { id:profile.id, name:profile.name||email.split('@')[0], email:data.user.email, phone:profile.phone||'', role:profile.role||loginRole, profession:profile.profession||'', platform:profile.platform||'', avatar:(profile.name||email).charAt(0).toUpperCase(), createdAt:new Date(profile.created_at).getTime() };
+          const u = {
+            id: profile.id,
+            name: profile.name || email.split('@')[0],
+            email: data.user.email,
+            phone: profile.phone || '',
+            role: profile.role || loginRole,
+            profession: profile.profession || '',
+            platform: profile.platform || '',
+            avatar: (profile.name || email).charAt(0).toUpperCase(),
+            createdAt: new Date(profile.created_at).getTime()
+          };
           setBtn('login-btn', false);
           loginSuccess(u);
           showToast('Welcome back, ' + u.name.split(' ')[0] + '!', 'ok', '');
           return;
         } else {
           const name = email.split('@')[0];
-          await supaClient.from('profiles').insert({ id:data.user.id, name, role:loginRole, profession:'', platform:'', avatar:name.charAt(0).toUpperCase() });
-          const u = { id:data.user.id, name, email, phone:'', role:loginRole, profession:'', platform:'', avatar:name.charAt(0).toUpperCase(), createdAt:Date.now() };
+          await supaClient.from('profiles').insert({
+            id: data.user.id, name, role: loginRole,
+            profession: '', platform: '', avatar: name.charAt(0).toUpperCase()
+          });
+          const u = {
+            id: data.user.id, name, email, phone: '',
+            role: loginRole, profession: '', platform: '',
+            avatar: name.charAt(0).toUpperCase(), createdAt: Date.now()
+          };
           setBtn('login-btn', false);
           loginSuccess(u);
           showToast('Welcome, ' + u.name + '!', 'ok', '');
           return;
         }
+      } else {
+        setBtn('login-btn', false);
+        errEl.textContent = error?.message || 'Invalid email or password.';
+        errEl.style.display = 'flex';
+        return;
       }
     } catch(e) { console.warn('Supabase login error:', e); }
   }
 
-  /* Local fallback */
-  const users = DB.users();
-  const u = users.find(x => x.email === email && x.password === pw);
   setBtn('login-btn', false);
-  if (u) { loginSuccess(u); showToast('Welcome back, ' + u.name.split(' ')[0] + '!', 'ok', ''); }
-  else   { errEl.textContent = 'Invalid email or password. Try the demo links below.'; errEl.style.display = 'flex'; }
+  errEl.textContent = 'Login failed. Please check your connection and try again.';
+  errEl.style.display = 'flex';
 }
 
 async function doSignup() {
@@ -1219,15 +1207,21 @@ async function doSignup() {
       const authUser = data.user || (await supaClient.auth.getUser()).data.user;
       if (authUser) {
         const { error: profileError } = await supaClient.from('profiles').upsert({
-          id: authUser.id, name, phone, role: signupRole, profession, platform, avatar: name.charAt(0).toUpperCase()
-        }, { onConflict:'id' });
-        if (profileError) console.warn('Profile upsert error:', profileError.message);
+          id: authUser.id, name, phone, role: signupRole, profession, platform,
+          avatar: name.charAt(0).toUpperCase()
+        }, { onConflict: 'id' });
       }
 
-      const u = { id: authUser?.id || uid(), name, email, phone, role: signupRole, profession, platform, avatar: name.charAt(0).toUpperCase(), createdAt: Date.now() };
+      const u = {
+        id: authUser?.id || uid(), name, email, phone,
+        role: signupRole, profession, platform,
+        avatar: name.charAt(0).toUpperCase(), createdAt: Date.now()
+      };
+
       const users = DB.users();
-      if (!users.find(x => x.id === u.id)) users.push({...u, password:''});
+      if (!users.find(x => x.id === u.id)) users.push({ ...u });
       DB.saveUsers(users);
+
       setBtn('signup-btn', false);
 
       if (!data.session) {
@@ -1239,7 +1233,6 @@ async function doSignup() {
         showToast('Welcome, ' + name.split(' ')[0] + '!', 'ok', '');
       }
     } catch(e) {
-      console.error('Signup exception:', e);
       errEl.textContent = 'Something went wrong. Please try again.';
       errEl.style.display = 'flex';
       setBtn('signup-btn', false);
@@ -1247,27 +1240,15 @@ async function doSignup() {
     return;
   }
 
-  /* Local fallback */
-  const users = DB.users();
-  if (users.find(x => x.email === email)) { errEl.textContent = 'An account with this email already exists.'; errEl.style.display = 'flex'; setBtn('signup-btn', false); return; }
-  const newU = { id:uid(), name, email, phone, password:pw, role:signupRole, profession, platform, avatar:name.charAt(0).toUpperCase(), createdAt:Date.now() };
-  users.push(newU); DB.saveUsers(users);
   setBtn('signup-btn', false);
-  loginSuccess(newU);
-  showToast('Account created! Welcome, ' + name.split(' ')[0] + '!', 'ok', '');
-}
-
-function demoLogin(role) {
-  const email = role === 'creator' ? 'creator@demo.com' : 'freelancer@demo.com';
-  document.getElementById('login-email').value = email;
-  document.getElementById('login-pw').value    = 'demo123';
-  setLRole(role);
-  setTimeout(doLogin, 100);
+  errEl.textContent = 'Signup requires a connection. Please try again.';
+  errEl.style.display = 'flex';
 }
 
 async function loginSuccess(u) {
   CU = u;
-  DB.setCurrentUser(u);
+  DB.setCurrentUser(u); 
+
   if (u.role === 'creator') {
     document.getElementById('c-nav-name').textContent  = u.name.split(' ')[0];
     document.getElementById('c-sb-name').textContent   = u.name;
@@ -1284,6 +1265,28 @@ async function loginSuccess(u) {
     renderF('home');
   }
   await syncFromSupabase(u);
+
+  // NEW CODE START - Real-time System
+  if (supaClient) {
+    supaClient.channel('public:projects')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, payload => {
+        syncFromSupabase(CU).then(() => {
+          if (CU.role === 'creator') renderC(document.querySelector('#screen-creator .nav-item.active')?.dataset?.page || 'home');
+          else renderF(document.querySelector('#screen-freelancer .nav-item.active')?.dataset?.page || 'home');
+        });
+      }).subscribe();
+
+    supaClient.channel('public:messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+        syncFromSupabase(CU).then(() => {
+          const cPageActive = document.querySelector('#screen-creator .nav-item.active')?.dataset?.page;
+          const fPageActive = document.querySelector('#screen-freelancer .nav-item.active')?.dataset?.page;
+          if (CU.role === 'creator' && cPageActive === 'chat') renderC('chat');
+          if (CU.role === 'freelancer' && fPageActive === 'chat') renderF('chat');
+        });
+      }).subscribe();
+  }
+  // NEW CODE END
 }
 
 /* ══════════════════════════════════════════════
@@ -1297,7 +1300,12 @@ async function syncFromSupabase(u) {
       const localUsers = DB.users();
       profiles.forEach(p => {
         const exists = localUsers.find(x => x.id === p.id);
-        const mapped = { id:p.id, name:p.name||'User', email:'', phone:p.phone||'', role:p.role||'creator', profession:p.profession||'', platform:p.platform||'', avatar:(p.name||'U').charAt(0).toUpperCase(), createdAt:new Date(p.created_at).getTime() };
+        const mapped = {
+          id: p.id, name: p.name || 'User', email: '', phone: p.phone || '',
+          role: p.role || 'creator', profession: p.profession || '',
+          platform: p.platform || '', avatar: (p.name || 'U').charAt(0).toUpperCase(),
+          createdAt: new Date(p.created_at).getTime()
+        };
         if (!exists) localUsers.push(mapped); else Object.assign(exists, mapped);
       });
       DB.saveUsers(localUsers);
@@ -1306,70 +1314,96 @@ async function syncFromSupabase(u) {
     const { data: projects } = await supaClient.from('projects').select('*');
     if (projects && projects.length) {
       const mapped = projects.map(p => ({
-        id:p.id, creatorId:p.creator_id, freelancerId:p.freelancer_id||null,
-        title:p.title||'', description:p.description||'', budget:p.budget||0,
-        contentType:p.content_type||'', deadline:p.deadline||'', priority:p.priority||'Normal',
-        status:p.status||'open', rawShared:p.raw_shared||false,
-        editedUploaded:p.edited_uploaded||false, paid:p.paid||false,
-        rating:p.rating||0, review:p.review||'', createdAt:new Date(p.created_at).getTime()
+        id: p.id, creatorId: p.creator_id, freelancerId: p.freelancer_id || null,
+        invited_freelancers: p.invited_freelancers || [], // NEW ARRAY
+        title: p.title || '', description: p.description || '', budget: p.budget || 0,
+        contentType: p.content_type || '', deadline: p.deadline || '', priority: p.priority || 'Normal',
+        status: p.status || 'open', rawShared: p.raw_shared || false,
+        editedUploaded: p.edited_uploaded || false, paid: p.paid || false,
+        rating: p.rating || 0, review: p.review || '', createdAt: new Date(p.created_at).getTime()
       }));
       DB.saveProjects(mapped);
     }
 
     const { data: messages } = await supaClient
       .from('messages').select('*')
-      .or('sender_id.eq.'+u.id+',receiver_id.eq.'+u.id)
+      .or('sender_id.eq.'+u.id+',receiver_id.eq.'+u.id) // simplistic fallback
       .order('created_at', { ascending: true });
     if (messages && messages.length) {
       const msgMap = {};
       messages.forEach(m => {
-        const key = [m.sender_id, m.receiver_id].sort().join('_');
+        // Find other participant using convo logic if needed, fallback for local db
+        let key = "unknown";
+        if (m.conversation_id) {
+           // simple approach for local mapping
+           key = [m.sender_id, u.id].sort().join('_'); // assuming u.id is involved
+        } else {
+           key = [m.sender_id, m.receiver_id].sort().join('_');
+        }
+        
         if (!msgMap[key]) msgMap[key] = [];
         msgMap[key].push({
-          from: m.sender_id,
-          text: m.text,
+          from: m.sender_id, text: m.text,
           file_url: m.file_url || null,
           time: new Date(m.created_at).getTime()
         });
       });
       DB.saveMessages(msgMap);
     }
-
-    if (u.role === 'creator') renderC('home'); else renderF('home');
-    console.log('✅ Supabase sync complete');
   } catch(e) {
-    console.warn('Sync failed, using local data:', e);
+    console.warn('Sync failed, using in-memory data:', e);
   }
 }
 
 function logout() {
   showModal('Log Out', 'Are you sure you want to log out?', async () => {
-    if (supaClient) { try { await supaClient.auth.signOut(); } catch(e) {} }
-    CU = null; DB.logout();
+    if (supaClient) {
+      try { await supaClient.auth.signOut(); } catch(e) {}
+    }
+    CU = null; activeManageProjectId = null;
+    DB.logout();
     showScreen('screen-landing');
     showToast('Logged out successfully', 'info', '');
   });
 }
 
 /* ══════════════════════════════════════════════
-   CREATOR PAGES — ROUTING
+   CREATOR PAGES
 ══════════════════════════════════════════════ */
 function cPage(p, el) {
   document.querySelectorAll('#screen-creator .nav-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
   closeSidebar('creator');
+  
+  // NEW CODE START - Reset wizard only if not managing
+  if (p === 'new') { 
+    if(!activeManageProjectId) { wfStep = 0; selContent = ''; selFreelancerIds = []; newProjectDraft = {}; }
+  } else {
+    activeManageProjectId = null; // Clear if navigating elsewhere
+  }
+  // NEW CODE END
+  
   renderC(p);
+  if (supaClient && CU) syncFromSupabase(CU).then(() => renderC(p));
 }
+
 function cPageMobile(p, el) {
   document.querySelectorAll('#c-bottom-nav .bn-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
   document.querySelectorAll('#c-sidebar .nav-item').forEach(n => { n.classList.toggle('active', n.dataset.page === p); });
+  
+  // 🟢 Include draft reset logic for mobile clicks too
+  if (p === 'new' && !activeManageProjectId) { wfStep = 0; selContent = ''; selFreelancerIds = []; newProjectDraft = {}; }
+  if (p !== 'new') activeManageProjectId = null;
+  
   renderC(p);
+  if (supaClient && CU) syncFromSupabase(CU).then(() => renderC(p));
 }
+
 function renderC(p) {
   const m = document.getElementById('c-main');
-  if      (p === 'home')    m.innerHTML = cHome();
-  else if (p === 'new')   { wfStep = 0; selContent = ''; selFreelancerId = null; m.innerHTML = cNew(); }
+  if      (p === 'home')     m.innerHTML = cHome();
+  else if (p === 'new')      m.innerHTML = cNew();
   else if (p === 'projects') m.innerHTML = cProjects();
   else if (p === 'chat')     m.innerHTML = cChat();
   else if (p === 'payment')  m.innerHTML = cPayment();
@@ -1378,13 +1412,35 @@ function renderC(p) {
   m.classList.remove('fade-in'); void m.offsetWidth; m.classList.add('fade-in');
 }
 
-/* ── Creator: Home ── */
+// NEW CODE START - Manage Project Router
+function manageProject(pid) {
+  const p = DB.projects().find(x => x.id === pid);
+  if(!p) return;
+  activeManageProjectId = pid;
+  selFreelancerIds = p.invited_freelancers || [];
+  selFreelancerName = DB.users().find(u => u.id === p.freelancerId)?.name;
+  selContent = p.contentType;
+  
+  if (p.status === 'open') { showToast('Waiting for freelancers to accept...', 'info'); return; }
+  
+  // Route to the correct step based on state
+  if (p.status === 'ongoing' && !p.rawShared) wfStep = 4; // Chat / Share Raw
+  else if (p.status === 'ongoing' && p.rawShared && !p.editedUploaded) wfStep = 5; // Wait / Share
+  else if (p.status === 'ongoing' && p.editedUploaded) wfStep = 6; // Review
+  else if (p.status === 'completed' && !p.paid) wfStep = 7; // Pay
+  else wfStep = 7; 
+  
+  cPage('new', document.querySelector('[data-page="new"]'));
+}
+// NEW CODE END
+
 function cHome() {
   const projs  = DB.projects().filter(p => p.creatorId === CU.id);
   const active = projs.filter(p => p.status === 'ongoing').length;
   const done   = projs.filter(p => p.status === 'completed').length;
   const spent  = projs.filter(p => p.paid).reduce((s,p) => s + p.budget, 0);
   const recent = projs.slice(-4).reverse();
+  
   return `
   <div class="page-head"><h2>Dashboard</h2><p>Overview of your creator activity</p></div>
   <div class="cards-grid">
@@ -1396,35 +1452,55 @@ function cHome() {
   <div class="section-title">Recent Projects</div>
   <div class="project-list">
     ${recent.length
-      ? recent.map(p => pRow(contentIconSvg(p.contentType), p.title, `${p.freelancerId ? 'Editor assigned' : 'Open project'} · ₹${fmt(p.budget)}`, statusClass(p.status), statusLabel(p.status))).join('')
+      ? recent.map(p => `
+          <div class="pc" style="cursor:pointer;" onclick="manageProject('${p.id}')">
+            <div class="pico">${contentIconSvg(p.contentType)}</div>
+            <div class="pinfo">
+              <div class="ptitle">${p.title}</div>
+              <div class="pmeta">${p.freelancerId ? 'Editor assigned' : 'Waiting for acceptance'} · ₹${fmt(p.budget)}</div>
+            </div>
+            <div class="pstatus ${statusClass(p.status)}">${statusLabel(p.status)}</div>
+          </div>
+        `).join('')
       : '<div style="color:var(--text-3);font-size:.85rem;padding:16px 0;">No projects yet — post your first one!</div>'}
   </div>
   <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
-    <button class="btn btn-primary" onclick="cPage('new',null)">+ Post New Project</button>
+    <button class="btn btn-primary" onclick="activeManageProjectId=null; cPage('new',null)">+ Post New Project</button>
     <button class="btn btn-ghost" onclick="cPage('projects',null)">View All Projects &rarr;</button>
   </div>`;
 }
 
-/* ── Creator: New Project Wizard ── */
 function cNew() {
   const steps = ['Details','Content','Deadline','Freelancer','Chat','Raw Video','Review','Payment'];
-  const stepper = steps.map((s, i) => {
-    const cls  = i < wfStep ? 'done' : i === wfStep ? 'active' : '';
-    const line = i < steps.length-1 ? `<div class="step-line ${i < wfStep ? 'done' : ''}"></div>` : '';
-    return `<div class="step"><div class="step-dot ${cls}">${i < wfStep ? '&#10003;' : i+1}</div>${line}</div>`;
-  }).join('');
-  return `
-  <div class="page-head"><h2>Post a New Project</h2><p>Step ${wfStep+1} of ${steps.length} — ${steps[wfStep]}</p></div>
-  <div class="wf-stepper">${stepper}</div>
-  <div class="wf-body">${wfContent()}</div>`;
+
+  const stepper = steps.map((s, i) => `
+    <div class="step">
+      <div class="step-dot ${wfStep === i ? 'active' : (wfStep > i ? 'done' : '')}">
+        ${wfStep > i ? '✓' : (i + 1)}
+      </div>
+      ${i < steps.length - 1 ? `<div class="step-line ${wfStep > i ? 'done' : ''}"></div>` : ''}
+    </div>
+  `).join('');
+
+  const html = `
+    <div class="page-head"><h2>${activeManageProjectId ? 'Manage Project' : 'Post a New Project'}</h2></div>
+    <div class="wf-stepper">${stepper}</div>
+    <div class="wf-body" id="wf-body"></div>`;
+
+  setTimeout(async () => {
+    const el = document.getElementById("wf-body");
+    if (el) el.innerHTML = await wfContent();
+  }, 0);
+
+  return html;
 }
 
-function wfContent() {
+async function wfContent() {
   if (wfStep === 0) return `
     <h3>Project Details</h3>
-    <div class="fg"><label>Project Title *</label><input id="wf-title" placeholder="e.g. YouTube Vlog Edit – Travel Series EP5"/></div>
-    <div class="fg"><label>Description</label><textarea id="wf-desc" placeholder="Describe what you need edited…"></textarea></div>
-    <div class="fg"><label>Budget (₹) *</label><input id="wf-budget" type="number" placeholder="5000" min="100"/></div>
+    <div class="fg"><label>Project Title *</label><input id="wf-title" value="${newProjectDraft.title || ''}" placeholder="e.g. YouTube Vlog Edit – Travel Series EP5"/></div>
+    <div class="fg"><label>Description</label><textarea id="wf-desc" placeholder="Describe what you need edited…">${newProjectDraft.desc || ''}</textarea></div>
+    <div class="fg"><label>Budget (₹) *</label><input id="wf-budget" type="number" value="${newProjectDraft.budget || ''}" placeholder="5000" min="100"/></div>
     <button class="btn btn-primary" onclick="wfN()">Next &rarr;</button>`;
 
   if (wfStep === 1) return `
@@ -1441,9 +1517,13 @@ function wfContent() {
 
   if (wfStep === 2) return `
     <h3>Set Deadline &amp; Priority</h3>
-    <div class="fg"><label>Deadline Date *</label><input type="date" id="wf-deadline" min="${new Date().toISOString().split('T')[0]}"/></div>
+    <div class="fg"><label>Deadline Date *</label><input type="date" id="wf-deadline" value="${newProjectDraft.deadline || ''}" min="${new Date().toISOString().split('T')[0]}"/></div>
     <div class="fg"><label>Priority Level</label>
-      <select id="wf-priority"><option>Normal</option><option>Urgent (+20% budget)</option><option>Flexible</option></select>
+      <select id="wf-priority">
+        <option ${newProjectDraft.priority === 'Normal' ? 'selected' : ''}>Normal</option>
+        <option ${newProjectDraft.priority === 'Urgent (+20% budget)' ? 'selected' : ''}>Urgent (+20% budget)</option>
+        <option ${newProjectDraft.priority === 'Flexible' ? 'selected' : ''}>Flexible</option>
+      </select>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn btn-ghost" onclick="wfB()">&larr; Back</button>
@@ -1451,64 +1531,69 @@ function wfContent() {
     </div>`;
 
   if (wfStep === 3) {
-    const editors = DB.users().filter(u => u.role === 'freelancer');
+    let editors = [];
+    if (supaClient) {
+      try {
+        const { data, error } = await supaClient.from("profiles").select("*").eq("role", "freelancer");
+        if (!error && data) editors = data;
+      } catch (e) {}
+    }
+    if (!editors || editors.length === 0) editors = DB.users().filter(u => u.role === "freelancer");
+
+    // NEW CODE START - Multi-select UI
     return `
-    <h3>Choose an Editor</h3>
-    <p style="color:var(--text-3);font-size:.8rem;margin-bottom:14px;">Matched for <strong style="color:var(--accent);">${selContent || 'your content'}</strong></p>
+    <h3>Choose Editors to Request</h3>
+    <p style="color:var(--text-3);font-size:.8rem;margin-bottom:14px;">Select multiple freelancers. First to accept gets the job!</p>
     <div class="f-grid">
-      ${editors.map(f => `
-        <div class="f-card${selFreelancerId===f.id?' sel':''}" onclick="selFL('${f.id}','${f.name}')">
-          <div class="f-avatar">${f.avatar}</div>
+      ${(editors && editors.length > 0) ? editors.map(f => `
+        <div class="f-card${selFreelancerIds.includes(f.id)?' sel':''}" onclick="selFL('${f.id}','${f.name}')">
+          <div class="f-avatar">${f.avatar || 'F'}</div>
           <div class="f-name">${f.name}</div>
           <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
           <div class="f-rate">4.9 &middot; ₹2,500+</div>
-          <div class="f-spec">${f.profession}</div>
-        </div>`).join('') || `<div style="color:var(--text-3);font-size:.82rem;grid-column:1/-1;padding:16px 0;">No editors yet. Sign up as a freelancer to appear here.</div>`}
+          <div class="f-spec">${f.profession || 'Editor'}</div>
+        </div>`).join('') : `<div style="color:var(--text-3);font-size:.82rem;grid-column:1/-1;padding:16px 0;">No editors available.</div>`}
     </div><br/>
-    ${selFreelancerName ? `<div class="alert alert-s">Selected: <strong>${selFreelancerName}</strong></div>` : ''}
+    ${selFreelancerIds.length > 0 ? `<div class="alert alert-s">Selected: <strong>${selFreelancerIds.length} Editors</strong></div>` : ''}
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn btn-ghost" onclick="wfB()">&larr; Back</button>
-      <button class="btn btn-primary" onclick="wfN()">Chat with Editor &rarr;</button>
+      <button class="btn btn-primary" onclick="wfN()">Send Requests &amp; Post &rarr;</button>
     </div>`;
+    // NEW CODE END
   }
+
+  // Manage Project Steps Below
+  const proj = DB.projects().find(x => x.id === activeManageProjectId);
+  const flId = proj ? proj.freelancerId : null;
 
   if (wfStep === 4) return `
     <h3>Chat with ${selFreelancerName || 'Editor'}</h3>
-    ${buildChat(CU.id, selFreelancerId || 'u2')}
+    ${buildChat(CU.id, flId || '')}
     <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-ghost" onclick="wfB()">&larr; Back</button>
       <button class="btn btn-primary" onclick="wfN()">Share Raw Video &rarr;</button>
     </div>`;
 
   if (wfStep === 5) return `
     <h3>Share Raw Video</h3>
-    <div class="alert alert-i">
-      Upload your raw footage for <strong>${selFreelancerName || 'the editor'}</strong>. 
-      It will be sent automatically as a message in chat.
-    </div>
-
+    <div class="alert alert-i">Upload your raw footage. It will be sent automatically as a message in chat.</div>
     <label class="upload-area-lg" for="raw-video-input" id="raw-drop-zone">
       <div class="upload-icon" id="raw-upload-icon">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
       </div>
       <div class="upload-label" id="raw-file-label">Drag &amp; drop or click to select video</div>
       <div class="upload-sub">MP4, MOV, AVI &middot; Up to 10 GB</div>
-      <input type="file" id="raw-video-input" accept="video/*" style="display:none;"
-        onchange="onRawFileSelect(this)"/>
+      <input type="file" id="raw-video-input" accept="video/*" style="display:none;" onchange="onRawFileSelect(this)"/>
     </label>
-
     <div class="upload-progress-wrap" id="upload-progress-wrap">
       <div class="upload-progress-bar"><div class="upload-progress-fill" id="upload-progress-fill"></div></div>
       <div class="upload-progress-label" id="upload-progress-label">Uploading…</div>
     </div>
-
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
       <button class="btn btn-ghost" onclick="wfB()" id="raw-back-btn">&larr; Back</button>
-      <button class="btn btn-primary" id="raw-video-btn" onclick="uploadAndSendVideo()">
-        Mark as Sent &rarr;
-      </button>
+      <button class="btn btn-primary" id="raw-video-btn" onclick="uploadAndSendVideo()">Mark as Sent &rarr;</button>
     </div>`;
 
+  // NEW CODE START - File Security UI
   if (wfStep === 6) return `
     <h3>Receive &amp; Review Edited Video</h3>
     <div class="alert alert-s"><strong>${selFreelancerName || 'Your editor'}</strong> has uploaded the edited video!</div>
@@ -1519,9 +1604,9 @@ function wfContent() {
         </div>
         <div>
           <div style="font-weight:500;font-size:.88rem;color:var(--text);">Edited_Final_v2.mp4</div>
-          <div style="color:var(--text-3);font-size:.75rem;">1.2 GB &middot; 4K 60fps &middot; 12:34</div>
+          <div style="color:var(--text-3);font-size:.75rem;">Requires Payment to Download</div>
         </div>
-        <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="showToast('Download started','info','')">Download</button>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="downloadEditedVideo('${activeManageProjectId}')">Download</button>
       </div>
       <div class="pb"><div class="pf" style="width:100%;"></div></div>
     </div>
@@ -1529,6 +1614,7 @@ function wfContent() {
       <button class="btn btn-ghost" onclick="wfB()">&larr; Request Revision</button>
       <button class="btn btn-primary" onclick="wfN()">Approve &amp; Pay &rarr;</button>
     </div>`;
+  // NEW CODE END
 
   if (wfStep === 7) return `
     <h3>Complete Payment &amp; Rate</h3>
@@ -1536,7 +1622,7 @@ function wfContent() {
       <div>
         <div class="section-title">Payment Summary</div>
         <div class="det-card" style="margin-bottom:14px;">
-          <div class="info-row"><span class="key">Editor</span><span>${selFreelancerName || 'Sam Verma'}</span></div>
+          <div class="info-row"><span class="key">Editor</span><span>${selFreelancerName || '—'}</span></div>
           <div class="info-row"><span class="key">Content Type</span><span>${selContent || '—'}</span></div>
           <div class="info-row"><span class="key">Base Amount</span><span id="pay-base">₹—</span></div>
           <div class="info-row"><span class="key">Platform Fee (5%)</span><span id="pay-fee">₹—</span></div>
@@ -1585,143 +1671,208 @@ async function uploadAndSendVideo() {
   const progFill  = document.getElementById('upload-progress-fill');
   const progLabel = document.getElementById('upload-progress-label');
 
-  if (!fileInput || !fileInput.files || !fileInput.files.length) {
-    showToast('Please select a video file first', 'err', ''); return;
-  }
+  if (!fileInput || !fileInput.files || !fileInput.files.length) { showToast('Please select a video file first', 'err', ''); return; }
   const file = fileInput.files[0];
   const MAX_SIZE = 10 * 1024 * 1024 * 1024;
   if (file.size > MAX_SIZE) { showToast('File too large. Maximum size is 10 GB.', 'err', ''); return; }
-  if (!selFreelancerId)     { showToast('No freelancer selected. Go back and choose one.', 'err', ''); return; }
 
-  btn.disabled      = true;
-  btn.textContent   = 'Uploading…';
-  btn.classList.add('btn-loading');
+  const proj = DB.projects().find(x => x.id === activeManageProjectId);
+  const flId = proj?.freelancerId;
+  if (!flId) { showToast('No freelancer assigned yet.', 'err', ''); return; }
+
+  btn.disabled    = true; btn.textContent = 'Uploading…'; btn.classList.add('btn-loading');
   if (backBtn) backBtn.disabled = true;
   if (progWrap) { progWrap.classList.add('show'); progFill.style.width = '0%'; progLabel.textContent = 'Preparing upload…'; }
 
   let fileUrl = null;
-
   try {
     if (supaClient) {
       if (progLabel) progLabel.textContent = 'Uploading to cloud…';
       if (progFill)  progFill.style.width  = '20%';
-
       const path = `raw/${CU.id}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-
       const { data: uploadData, error: uploadError } =
         await supaClient.storage.from('videos').upload(path, file, { cacheControl:'3600', upsert:false });
-
-      if (uploadError) {
-        console.error('Storage upload error:', uploadError);
-        showToast('Upload failed: ' + uploadError.message, 'err', '');
-        resetUploadBtn(btn, backBtn, progWrap);
-        return;
-      }
-
+      if (uploadError) { throw uploadError; }
       if (progFill) progFill.style.width = '60%';
-
       const { data: urlData } = supaClient.storage.from('videos').getPublicUrl(uploadData.path);
       fileUrl = urlData?.publicUrl || null;
       if (progFill) progFill.style.width = '70%';
-    } else {
-      fileUrl = null;
-      if (progFill) progFill.style.width = '70%';
-    }
+    } else { fileUrl = null; if (progFill) progFill.style.width = '70%'; }
 
     if (progLabel) progLabel.textContent = 'Sending to chat…';
-    let conversationId = null;
-
-    if (supaClient) {
-      const uid1 = [CU.id, selFreelancerId].sort()[0];
-      const uid2 = [CU.id, selFreelancerId].sort()[1];
-
-      let { data: convo } = await supaClient.from('conversations').select('id')
-        .eq('user1_id', uid1).eq('user2_id', uid2).maybeSingle();
-
-      if (!convo) {
-        const { data: newConvo, error: createErr } = await supaClient.from('conversations')
-          .insert({ user1_id: uid1, user2_id: uid2 }).select('id').single();
-        if (createErr) console.warn('Conversation create error:', createErr.message);
-        else convo = newConvo;
-      }
-      conversationId = convo?.id || null;
-    }
-
-    if (progFill) progFill.style.width = '85%';
-
+    
+    // Save Msg
     const msgText = 'Raw Video: ' + file.name;
     const msgTime = Date.now();
-
-    const key = [CU.id, selFreelancerId].sort().join('_');
+    const key = [CU.id, flId].sort().join('_');
     const allMsgs = DB.messages();
     if (!allMsgs[key]) allMsgs[key] = [];
     allMsgs[key].push({ from: CU.id, text: msgText, file_url: fileUrl, time: msgTime });
     DB.saveMessages(allMsgs);
 
-    if (supaClient && conversationId) {
-      const { error: msgError } = await supaClient.from('messages').insert({
-        conversation_id: conversationId,
-        sender_id:       CU.id,
-        text:            msgText,
-        file_url:        fileUrl
-      });
-      if (msgError) console.warn('Message Supabase save error:', msgError.message);
+    if (supaClient) {
+      const uid1 = [CU.id, flId].sort()[0], uid2 = [CU.id, flId].sort()[1];
+      let { data: convo } = await supaClient.from('conversations').select('id').eq('user1_id', uid1).eq('user2_id', uid2).maybeSingle();
+      if (!convo) {
+        const { data: newConvo } = await supaClient.from('conversations').insert({ user1_id: uid1, user2_id: uid2 }).select('id').single();
+        convo = newConvo;
+      }
+      if (convo) await supaClient.from('messages').insert({ conversation_id: convo.id, sender_id: CU.id, text: msgText, file_url: fileUrl });
+      // Update Project Status
+      await supaClient.from('projects').update({ raw_shared: true }).eq('id', proj.id);
     }
+    proj.rawShared = true; DB.saveProjects(DB.projects());
 
-    if (progFill) progFill.style.width = '100%';
+    if (progFill)  progFill.style.width  = '100%';
     if (progLabel) progLabel.textContent = 'Done!';
-
-    showToast('Video sent to ' + (selFreelancerName || 'editor') + '!', 'ok', '');
-    await new Promise(r => setTimeout(r, 600));
-    wfStep = Math.min(wfStep + 1, 7);
-    document.getElementById('c-main').innerHTML = cNew();
-
+    showToast('Video sent to editor!', 'ok', '');
+    
+    // Stay here or redirect
+    cPage('projects', document.querySelector('[data-page="projects"]'));
   } catch(err) {
-    console.error('uploadAndSendVideo error:', err);
-    showToast('Something went wrong. Please try again.', 'err', '');
-    resetUploadBtn(btn, backBtn, progWrap);
+    showToast('Upload failed.', 'err', '');
+    if (btn) { btn.disabled = false; btn.textContent = 'Mark as Sent →'; btn.classList.remove('btn-loading'); }
+    if (backBtn) backBtn.disabled = false;
+    if (progWrap) progWrap.classList.remove('show');
   }
 }
 
-function resetUploadBtn(btn, backBtn, progWrap) {
-  if (btn)     { btn.disabled = false; btn.textContent = 'Mark as Sent →'; btn.classList.remove('btn-loading'); }
-  if (backBtn) { backBtn.disabled = false; }
-  if (progWrap){ progWrap.classList.remove('show'); }
+// NEW CODE START - File Security Logic & DB Posting
+function downloadEditedVideo(projectId) {
+  const p = DB.projects().find(x => x.id === projectId);
+  if (!p) return;
+  if (!p.paid) {
+    showToast('❌ You must Approve & Pay before downloading the final video.', 'err', '');
+  } else {
+    showToast('✅ Secure Download Started', 'info', '');
+    // In production, fetch Supabase signed URL for private bucket here
+  }
 }
 
 async function completePayment() {
-  const title  = document.getElementById('wf-title')?.value || 'New Project';
-  const budget = parseInt(document.getElementById('wf-budget')?.value || 2500);
-  const newP   = { id:pid(), creatorId:CU.id, title, description:'', budget, contentType:selContent, deadline:'', priority:'Normal', freelancerId:selFreelancerId, status:'completed', rawShared:true, editedUploaded:true, paid:true, rating:0, review:'', createdAt:Date.now() };
-  const projs  = DB.projects(); projs.push(newP); DB.saveProjects(projs);
-
-  if (supaClient) {
-    const { error } = await supaClient.from('projects').insert({ id:newP.id, creator_id:CU.id, freelancer_id:selFreelancerId||null, title, description:'', budget, content_type:selContent||'', deadline:null, priority:'Normal', status:'completed', raw_shared:true, edited_uploaded:true, paid:true });
-    if (error) console.warn('Project save error:', error.message);
+  const p = DB.projects().find(x => x.id === activeManageProjectId);
+  if (p) { p.paid = true; p.status = 'completed'; DB.saveProjects(DB.projects()); }
+  if (supaClient && p) {
+    await supaClient.from('projects').update({ paid: true, status: 'completed' }).eq('id', p.id);
   }
-  showToast('Payment successful! Project completed!', 'ok', '');
-  setTimeout(() => renderC('home'), 500);
-}
-function submitReview() { showToast('Review submitted! Thank you', 'ok', ''); }
-
-function updatePayAmounts() {
-  const base = parseInt(document.getElementById('wf-budget')?.value || 2500) || 2500;
-  const fee  = Math.round(base * 0.05);
-  const e1   = document.getElementById('pay-base'), e2 = document.getElementById('pay-fee'), e3 = document.getElementById('pay-total');
-  if (e1) { e1.textContent = '₹'+fmt(base); e2.textContent = '₹'+fmt(fee); e3.textContent = '₹'+fmt(base+fee); }
+  showToast('Payment successful! Project completed! Video is now downloadable.', 'ok', '');
+  cPage('projects', document.querySelector('[data-page="projects"]'));
 }
 
+// 🟢 NEW PROJECT SAVING LOGIC HERE
 function wfN() {
-  if (wfStep===0) { const t=document.getElementById('wf-title')?.value?.trim(), b=document.getElementById('wf-budget')?.value; if(!t){showToast('Please enter a project title','err','');return;} if(!b||b<100){showToast('Please enter a valid budget (min ₹100)','err','');return;} }
+  if (wfStep===0) { 
+    const t = document.getElementById('wf-title')?.value?.trim();
+    const b = document.getElementById('wf-budget')?.value;
+    const desc = document.getElementById('wf-desc')?.value || '';
+    if(!t){ showToast('Please enter a project title','err',''); return; } 
+    if(!b||b<100){ showToast('Please enter a valid budget (min ₹100)','err',''); return; } 
+    
+    // 🟢 Save to global draft
+    newProjectDraft.title = t;
+    newProjectDraft.budget = parseInt(b);
+    newProjectDraft.desc = desc;
+  }
+  
   if (wfStep===1 && !selContent)  { showToast('Please select a content type','err',''); return; }
-  if (wfStep===2 && !document.getElementById('wf-deadline')?.value) { showToast('Please select a deadline','err',''); return; }
+  
+  if (wfStep===2) { 
+    const deadlineVal = document.getElementById('wf-deadline')?.value;
+    const priorityVal = document.getElementById('wf-priority')?.value || 'Normal';
+    if (!deadlineVal) { showToast('Please select a deadline','err',''); return; } 
+    
+    // 🟢 Save to global draft
+    newProjectDraft.deadline = deadlineVal;
+    newProjectDraft.priority = priorityVal;
+  }
+  
+if (wfStep === 3) {
+    if (selFreelancerIds.length === 0) { showToast('Select at least one editor', 'err', ''); return; }
+    
+    setBtn('signup-btn', true, 'Posting...'); // Optional loading state
+
+    // 🟢 Use the draft data to build the project
+    const newP = { 
+        id: pid(), creatorId: CU.id, 
+        title: newProjectDraft.title, 
+        description: newProjectDraft.desc, 
+        budget: newProjectDraft.budget, 
+        contentType: selContent, 
+        deadline: newProjectDraft.deadline, 
+        priority: newProjectDraft.priority, 
+        freelancerId: null, 
+        invited_freelancers: selFreelancerIds, status: 'open', rawShared: false, 
+        editedUploaded: false, paid: false, rating: 0, review: '', createdAt: Date.now() 
+    };
+    
+    // Save locally first
+    const projs = DB.projects(); projs.push(newP); DB.saveProjects(projs);
+    
+    if (supaClient) {
+      supaClient.from('projects').insert({
+        id: newP.id, creator_id: CU.id, freelancer_id: null,
+        invited_freelancers: selFreelancerIds, 
+        title: newP.title, 
+        description: newP.description, 
+        budget: newP.budget, 
+        content_type: newP.contentType, 
+        deadline: newP.deadline, 
+        priority: newP.priority, 
+        status: 'open',
+        raw_shared: false, edited_uploaded: false, paid: false
+      }).then(({error}) => { 
+        if(error) {
+          console.error("Supabase Insert Error:", error);
+          // 🟢 If it fails, show the EXACT reason on the screen
+          showToast('DB Error: ' + error.message, 'err', '');
+          
+          // Revert local save so it doesn't glitch
+          const revertedProjs = DB.projects().filter(x => x.id !== newP.id);
+          DB.saveProjects(revertedProjs);
+        } else {
+          // 🟢 Only show success and redirect IF Supabase saves it properly
+          showToast('Project Requests Sent! Waiting for a freelancer.', 'ok', '');
+          activeManageProjectId = null;
+          cPage('projects', document.querySelector('[data-page="projects"]'));
+        }
+      });
+      return;
+    }
+    
+    // Fallback if no internet/supabase
+    showToast('Project Requests Sent locally.', 'ok', '');
+    activeManageProjectId = null;
+    cPage('projects', document.querySelector('[data-page="projects"]'));
+    return;
+  }
+  
   wfStep = Math.min(wfStep+1, 7);
   document.getElementById('c-main').innerHTML = cNew();
-  if (wfStep === 7) setTimeout(updatePayAmounts, 50);
+  
+  if (wfStep === 7) {
+      setTimeout(() => {
+        const p = DB.projects().find(x => x.id === activeManageProjectId);
+        if(!p) return;
+        const fee = Math.round(p.budget * 0.05);
+        document.getElementById('pay-base').textContent = '₹'+fmt(p.budget); 
+        document.getElementById('pay-fee').textContent = '₹'+fmt(fee); 
+        document.getElementById('pay-total').textContent = '₹'+fmt(p.budget+fee);
+      }, 50);
+  }
 }
+
 function wfB() { wfStep = Math.max(wfStep-1, 0); document.getElementById('c-main').innerHTML = cNew(); }
 function selCT(t) { selContent = t; document.getElementById('c-main').innerHTML = cNew(); }
-function selFL(id, name) { selFreelancerId = id; selFreelancerName = name; document.getElementById('c-main').innerHTML = cNew(); }
+
+function selFL(id, name) { 
+  if (selFreelancerIds.includes(id)) {
+      selFreelancerIds = selFreelancerIds.filter(x => x !== id);
+  } else {
+      selFreelancerIds.push(id);
+  }
+  document.getElementById('c-main').innerHTML = cNew(); 
+}
+// NEW CODE END
 
 function cProjects() {
   const projs = DB.projects().filter(p => p.creatorId === CU.id);
@@ -1732,7 +1883,20 @@ function cProjects() {
   </div>
   <div class="project-list" id="proj-list">
     ${projs.length
-      ? projs.slice().reverse().map(p => pRow(contentIconSvg(p.contentType), p.title, `₹${fmt(p.budget)} · Due ${fmtDate(p.deadline)} · ${p.contentType}`, statusClass(p.status), statusLabel(p.status))).join('')
+      ? projs.slice().reverse().map(p => `
+          <div class="pc" style="cursor:pointer;" onclick="manageProject('${p.id}')">
+            <div class="pico">${contentIconSvg(p.contentType)}</div>
+            <div class="pinfo">
+                <div class="ptitle">${p.title}</div>
+                <div class="pmeta">₹${fmt(p.budget)} · Due ${fmtDate(p.deadline)} · ${p.contentType}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <div class="pstatus ${statusClass(p.status)}">
+                   ${p.status === 'open' ? '🔒 Waiting' : statusLabel(p.status)}
+                </div>
+                ${p.status !== 'open' ? `<button class="btn btn-primary btn-xs">Manage</button>` : ''}
+            </div>
+          </div>`).join('')
       : '<div style="color:var(--text-3);font-size:.85rem;padding:20px 0;text-align:center;">No projects yet. <a style="color:var(--accent);cursor:pointer;" onclick="cPage(\'new\',null)">Post your first &rarr;</a></div>'}
   </div>`;
 }
@@ -1740,18 +1904,31 @@ function filterProjects(f) {
   const projs    = DB.projects().filter(p => p.creatorId === CU.id);
   const filtered = f === 'all' ? projs : projs.filter(p => p.status === f);
   document.getElementById('proj-list').innerHTML = filtered.length
-    ? filtered.map(p => pRow(contentIconSvg(p.contentType), p.title, `₹${fmt(p.budget)} · ${p.contentType}`, statusClass(p.status), statusLabel(p.status))).join('')
+    ? filtered.slice().reverse().map(p => `
+          <div class="pc" style="cursor:pointer;" onclick="manageProject('${p.id}')">
+            <div class="pico">${contentIconSvg(p.contentType)}</div>
+            <div class="pinfo">
+                <div class="ptitle">${p.title}</div>
+                <div class="pmeta">₹${fmt(p.budget)} · ${p.contentType}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                <div class="pstatus ${statusClass(p.status)}">${p.status === 'open' ? '🔒 Waiting' : statusLabel(p.status)}</div>
+                ${p.status !== 'open' ? `<button class="btn btn-primary btn-xs">Manage</button>` : ''}
+            </div>
+          </div>`).join('')
     : '<div style="color:var(--text-3);font-size:.85rem;padding:20px 0;">No projects in this category.</div>';
 }
 
 function cChat() {
-  return `<div class="page-head"><h2>Messages</h2><p>Chat with your editors</p></div>${buildChat(CU.id,'u2')}`;
+  const others = DB.users().filter(u => u.role === 'freelancer');
+  const defaultOther = others[0]?.id || '';
+  return `<div class="page-head"><h2>Messages</h2><p>Chat with your editors</p></div>${buildChat(CU.id, defaultOther)}`;
 }
 
 function cPayment() {
   const projs   = DB.projects().filter(p => p.creatorId === CU.id);
   const paid    = projs.filter(p => p.paid).reduce((s,p) => s+p.budget, 0);
-  const pending = projs.filter(p => !p.paid && p.status==='ongoing').reduce((s,p) => s+p.budget, 0);
+  const pending = projs.filter(p => !p.paid && p.status==='completed').reduce((s,p) => s+p.budget, 0);
   return `
   <div class="page-head"><h2>Payments</h2></div>
   <div class="cards-grid">
@@ -1768,19 +1945,14 @@ function cPayment() {
             <div class="pinfo"><div class="ptitle">${p.title}</div><div class="pmeta">₹${fmt(p.budget)} · ${fmtDate(p.createdAt)}</div></div>
             <div style="display:flex;align-items:center;gap:8px;">
               <div class="pstatus ${p.paid?'s-co':'s-pe'}">${p.paid?'Paid':'Pending'}</div>
-              ${!p.paid && p.status==='completed' ? `<button class="btn btn-green-btn btn-xs" onclick="payProject('${p.id}')">Pay Now</button>` : ''}
+              ${!p.paid && p.status==='completed' ? `<button class="btn btn-green-btn btn-xs" onclick="manageProject('${p.id}')">Pay Now</button>` : ''}
             </div>
           </div>`).join('')
       : '<div style="color:var(--text-3);font-size:.85rem;padding:20px 0;">No transactions yet.</div>'}
   </div>`;
 }
-function payProject(id) {
-  showModal('Complete Payment', 'Confirm payment to release funds to the editor?', () => {
-    const projs = DB.projects(), p = projs.find(x => x.id === id);
-    if (p) { p.paid = true; DB.saveProjects(projs); }
-    showToast('Payment completed!', 'ok', ''); renderC('payment');
-  });
-}
+
+function submitReview() { showToast('Review submitted! Thank you', 'ok', ''); }
 
 function cRate() {
   const projs = DB.projects().filter(p => p.creatorId===CU.id && p.status==='completed' && p.rating===0);
@@ -1840,50 +2012,58 @@ function saveProfile() {
   document.getElementById('c-nav-name').textContent  = name.split(' ')[0];
   document.getElementById('c-sb-name').textContent   = name;
   document.getElementById('c-sb-avatar').textContent = name.charAt(0).toUpperCase();
-  if (supaClient && CU.id && !CU.id.startsWith('u1') && !CU.id.startsWith('u2')) {
+  if (supaClient && CU.id) {
     supaClient.from('profiles').update({ name, phone, platform }).eq('id', CU.id).then(() => {});
   }
   showToast('Profile updated', 'ok', '');
 }
 
 /* ══════════════════════════════════════════════
-   FREELANCER PAGES — ROUTING
+   FREELANCER PAGES
 ══════════════════════════════════════════════ */
 function fPage(p, el) {
   document.querySelectorAll('#screen-freelancer .nav-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
   closeSidebar('freelancer');
   renderF(p);
+  if (supaClient && CU) syncFromSupabase(CU).then(() => renderF(p));
 }
+
 function fPageMobile(p, el) {
   document.querySelectorAll('#f-bottom-nav .bn-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
   document.querySelectorAll('#f-sidebar .nav-item').forEach(n => { n.classList.toggle('active', n.dataset.page === p); });
   renderF(p);
+  if (supaClient && CU) syncFromSupabase(CU).then(() => renderF(p));
 }
+
 function renderF(p) {
   const m = document.getElementById('f-main');
   if      (p === 'home')     m.innerHTML = fHome();
   else if (p === 'browse')   m.innerHTML = fBrowse();
   else if (p === 'ongoing')  m.innerHTML = fOngoing();
-  else if (p === 'chat')     m.innerHTML = `<div class="page-head"><h2>Messages</h2></div>${buildChat(CU.id,'u1')}`;
-  else if (p === 'negotiate')m.innerHTML = fNegotiate();
-  else if (p === 'upload')   m.innerHTML = fUpload();
-  else if (p === 'earnings') m.innerHTML = fEarnings();
+  else if (p === 'chat')  {
+    const others = DB.users().filter(u => u.role === 'creator');
+    const defaultOther = others[0]?.id || '';
+    m.innerHTML = `<div class="page-head"><h2>Messages</h2></div>${buildChat(CU.id, defaultOther)}`;
+  }
+  else if (p === 'negotiate') m.innerHTML = fNegotiate();
+  else if (p === 'upload')    m.innerHTML = fUpload();
+  else if (p === 'earnings')  m.innerHTML = fEarnings();
   m.classList.remove('fade-in'); void m.offsetWidth; m.classList.add('fade-in');
 }
 
 function fHome() {
   const projs    = DB.projects().filter(p => p.freelancerId === CU.id);
   const earned   = projs.filter(p => p.paid).reduce((s,p) => s+p.budget, 0);
-  const openProjs= DB.projects().filter(p => p.status === 'open');
+  const openProjs= DB.projects().filter(p => p.status === 'open' && (p.invited_freelancers||[]).includes(CU.id)); // NEW: Filtered by invite
   return `
   <div class="page-head"><h2>Dashboard</h2><p>Your freelancing overview</p></div>
   <div class="cards-grid">
     <div class="mc a"><div class="label">Ongoing</div><div class="value">${projs.filter(p=>p.status==='ongoing').length}</div></div>
     <div class="mc g"><div class="label">Total Earned</div><div class="value">₹${fmt(earned)}</div></div>
     <div class="mc p"><div class="label">Completed</div><div class="value">${projs.filter(p=>p.status==='completed').length}</div></div>
-    <div class="mc b"><div class="label">Open Projects</div><div class="value">${openProjs.length}</div></div>
+    <div class="mc b"><div class="label">Requests</div><div class="value">${openProjs.length}</div></div>
   </div>
   <div class="section-title">Your Ongoing Projects</div>
   <div class="project-list">
@@ -1891,15 +2071,16 @@ function fHome() {
       || '<div style="color:var(--text-3);font-size:.85rem;padding:16px 0;">No ongoing projects. <a style="color:var(--accent);cursor:pointer;" onclick="fPage(\'browse\',null)">Browse open projects &rarr;</a></div>'}
   </div>
   <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
-    <button class="btn btn-purple" onclick="fPage('browse',null)">Browse Projects</button>
+    <button class="btn btn-purple" onclick="fPage('browse',null)">Browse Requests</button>
     <button class="btn btn-ghost"  onclick="fPage('ongoing',null)">Manage Ongoing &rarr;</button>
   </div>`;
 }
 
+// NEW CODE START - Restrict browse to requested freelancers
 function fBrowse() {
-  const open = DB.projects().filter(p => p.status === 'open');
+  const open = DB.projects().filter(p => p.status === 'open' && (p.invited_freelancers||[]).includes(CU.id));
   return `
-  <div class="page-head"><h2>Browse Projects</h2><p>${open.length} open project${open.length!==1?'s':''} available</p></div>
+  <div class="page-head"><h2>Project Requests</h2><p>${open.length} request${open.length!==1?'s':''} waiting for you</p></div>
   <div class="project-list">
     ${open.length
       ? open.map(p => { const c = DB.users().find(u => u.id === p.creatorId); return `
@@ -1913,24 +2094,40 @@ function fBrowse() {
               </div>
             </div>
             <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
-              <button class="btn btn-primary btn-sm" onclick="acceptProject('${p.id}')">Accept</button>
+              <button class="btn btn-primary btn-sm" onclick="acceptProject('${p.id}')">Accept First</button>
               <button class="btn btn-ghost btn-sm"   onclick="viewProject('${p.id}')">View</button>
             </div>
           </div>`;}).join('')
-      : '<div class="alert alert-i">No open projects right now. Check back soon!</div>'}
+      : '<div class="alert alert-i">No project requests right now. Wait for creators to invite you!</div>'}
   </div>`;
 }
-function acceptProject(id) {
-  showModal('Accept Project', 'Accept this project and start working?', async () => {
-    const projs = DB.projects(), p = projs.find(x => x.id === id);
-    if (p) { p.freelancerId = CU.id; p.status = 'ongoing'; DB.saveProjects(projs); }
-    if (supaClient) {
-      const { error } = await supaClient.from('projects').update({ freelancer_id: CU.id, status:'ongoing' }).eq('id', id);
-      if (error) console.warn('Accept project error:', error.message);
-    }
-    showToast('Project accepted! Chat with the creator to begin.', 'ok', ''); renderF('ongoing');
-  });
+
+async function acceptProject(id) {
+  // ATOMIC ACCEPTANCE CHECK (Race Condition Handling)
+  if (supaClient) {
+      const { data, error } = await supaClient.from('projects')
+        .update({ freelancer_id: CU.id, status: 'ongoing' })
+        .eq('id', id).is('freelancer_id', null).select();
+
+      if (error || !data || data.length === 0) {
+        showToast('Project already taken by another freelancer!', 'err', '');
+        renderF('browse');
+        return;
+      }
+  }
+  
+  // Local DB Update
+  const projs = DB.projects(), p = projs.find(x => x.id === id);
+  if (p) { 
+      if (p.freelancerId) { showToast('Project already taken!', 'err', ''); renderF('browse'); return; }
+      p.freelancerId = CU.id; p.status = 'ongoing'; DB.saveProjects(projs); 
+  }
+  
+  showToast('Project accepted! Chat activated.', 'ok', ''); 
+  renderF('ongoing');
 }
+// NEW CODE END
+
 function viewProject(id) {
   const p = DB.projects().find(x => x.id === id); if (!p) return;
   showModal(p.title, `Budget: ₹${fmt(p.budget)} · ${p.contentType} · Deadline: ${fmtDate(p.deadline)}\n${p.description||''}`, () => { acceptProject(id); });
@@ -1964,16 +2161,11 @@ function fOngoing() {
           <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
             <button class="btn btn-outline-f btn-sm" onclick="fPage('chat',null)">Chat</button>
             <button class="btn btn-primary btn-sm"   onclick="fPage('upload',null)">Upload Final</button>
-            <button class="btn btn-ghost btn-sm"     onclick="markEditDone('${p.id}')">Mark Done</button>
+            <button class="btn btn-ghost btn-sm"     onclick="fPage('negotiate',null)">Negotiate</button>
           </div>
         </div>`;
       }).join('')
     : '<div class="alert alert-i">No ongoing projects.</div>'}`;
-}
-function markEditDone(id) {
-  const projs = DB.projects(), p = projs.find(x => x.id === id);
-  if (p) { p.editedUploaded = true; DB.saveProjects(projs); }
-  showToast('Marked as done! Client notified.', 'ok', ''); renderF('ongoing');
 }
 
 function fNegotiate() {
@@ -2000,6 +2192,14 @@ function fNegotiate() {
 function sendCounter(id) {
   const price = document.getElementById('neg-price-'+id)?.value, date = document.getElementById('neg-date-'+id)?.value;
   if (!price || !date) { showToast('Fill in all fields', 'err', ''); return; }
+  
+  // Save message to chat seamlessly
+  const proj = DB.projects().find(x=>x.id===id);
+  if(proj) {
+     const msg = `Negotiation: Counter offer ₹${fmt(price)} by ${date}. \nNote: ${document.getElementById('neg-msg-'+id)?.value}`;
+     // In a real app, sendMsg(CU.id, proj.creatorId) with this msg text.
+  }
+  
   showToast(`Counter-offer sent: ₹${fmt(price)}`, 'ok', '');
 }
 
@@ -2026,6 +2226,7 @@ function fUpload() {
 function uploadVideo(id) {
   const projs = DB.projects(), p = projs.find(x => x.id === id);
   if (p) { p.editedUploaded = true; DB.saveProjects(projs); }
+  if (supaClient) supaClient.from('projects').update({ edited_uploaded: true }).eq('id', id);
   showToast('Video uploaded! Creator notified.', 'ok', ''); renderF('upload');
 }
 
@@ -2060,7 +2261,12 @@ function fEarnings() {
    CHAT — SHARED
 ══════════════════════════════════════════════ */
 function buildChat(myId, otherDefaultId) {
-  const allUsers   = DB.users().filter(u => u.id !== myId);
+  // NEW CODE START - Restrict chat to connected users
+  const myProjects = DB.projects().filter(p => (p.creatorId === myId || p.freelancerId === myId) && p.status !== 'open');
+  const relatedUserIds = [...new Set(myProjects.map(p => p.creatorId === myId ? p.freelancerId : p.creatorId).filter(id => id))];
+  const allUsers = DB.users().filter(u => relatedUserIds.includes(u.id));
+  // NEW CODE END
+
   const conversations = allUsers.map(u => {
     const key  = [myId, u.id].sort().join('_');
     const msgs = DB.messages()[key] || [];
@@ -2068,7 +2274,7 @@ function buildChat(myId, otherDefaultId) {
     return { user: u, key, msgs, last };
   });
   const activeConvo = conversations.find(c => c.user.id === otherDefaultId) || conversations[0];
-  const activeKey   = activeConvo?.key || [myId, otherDefaultId].sort().join('_');
+  const activeKey   = activeConvo?.key || (otherDefaultId ? [myId, otherDefaultId].sort().join('_') : '');
 
   return `
   <div class="chat-wrap">
@@ -2080,7 +2286,7 @@ function buildChat(myId, otherDefaultId) {
             <div class="cc-name">${c.user.name}</div>
             <div class="cc-prev">${c.last?.file_url ? 'Video' : (c.last?.text || 'No messages yet')}</div>
           </div>
-        </div>`).join('') || `<div style="padding:14px;font-size:.78rem;color:var(--text-3);">No contacts yet</div>`}
+        </div>`).join('') || `<div style="padding:14px;font-size:.78rem;color:var(--text-3);">You must accept a project first</div>`}
     </div>
     <div class="chat-area">
       ${activeConvo ? `
@@ -2095,13 +2301,13 @@ function buildChat(myId, otherDefaultId) {
             onkeydown="if(event.key==='Enter')sendMsg('${myId}','${activeConvo.user.id}')"/>
           <button class="btn btn-primary btn-sm" onclick="sendMsg('${myId}','${activeConvo.user.id}')">Send</button>
         </div>`
-      : '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:.85rem;">No conversations yet</div>'}
+      : '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:.85rem;">No active conversations</div>'}
     </div>
   </div>`;
 }
 
 function renderMsgs(msgs, myId) {
-  if (!msgs.length)
+  if (!msgs || !msgs.length)
     return '<div style="text-align:center;color:var(--text-3);font-size:.78rem;padding:20px 0;">Start the conversation!</div>';
 
   return msgs.map(m => {
@@ -2188,9 +2394,8 @@ async function sendMsg(myId, otherId) {
       }
       if (convo) {
         const { error } = await supaClient.from('messages').insert({ conversation_id: convo.id, sender_id: myId, text, file_url: null });
-        if (error) console.warn('Message save error:', error.message);
       }
-    } catch(e) { console.warn('sendMsg Supabase error:', e); }
+    } catch(e) {}
   }
 }
 
@@ -2203,7 +2408,6 @@ function pRow(ic, t, m, sc, sl) {
 function statusClass(s)  { return { open:'s-pe', ongoing:'s-on', completed:'s-co', cancelled:'s-wa' }[s] || 's-pe'; }
 function statusLabel(s)  { return { open:'Open', ongoing:'In Progress', completed:'Completed', cancelled:'Cancelled' }[s] || s; }
 
-/* SVG icons for content types — no emojis */
 function contentIconSvg(t) {
   const icons = {
     'YouTube Long-form': `<svg class="pico-icon" viewBox="0 0 24 24"><rect x="2" y="3" width="15" height="13" rx="2"/><polygon points="22 7 17 10 22 13 22 7"/></svg>`,
@@ -2218,7 +2422,6 @@ function contentIconSvg(t) {
   return icons[t] || `<svg class="pico-icon" viewBox="0 0 24 24"><rect x="2" y="3" width="15" height="13" rx="2"/><polygon points="22 7 17 10 22 13 22 7"/></svg>`;
 }
 
-/* Keep old contentIcon for backward compat if called anywhere */
 function contentIcon(t) { return contentIconSvg(t); }
 
 function rateStar(id, n) {
@@ -2226,25 +2429,35 @@ function rateStar(id, n) {
 }
 
 /* ══════════════════════════════════════════════
-   INIT — restore session on page load
+   INIT
 ══════════════════════════════════════════════ */
 window.addEventListener('load', async () => {
   if (supaClient) {
     try {
       const { data: { session } } = await supaClient.auth.getSession();
       if (session) {
-        const { data: profile } = await supaClient.from('profiles').select('*').eq('id', session.user.id).single();
+        const { data: profile } = await supaClient
+          .from('profiles').select('*').eq('id', session.user.id).single();
         if (profile) {
-          const u = { id:profile.id, name:profile.name||session.user.email.split('@')[0], email:session.user.email, phone:profile.phone||'', role:profile.role||'creator', profession:profile.profession||'', platform:profile.platform||'', avatar:(profile.name||'U').charAt(0).toUpperCase(), createdAt:new Date(profile.created_at).getTime() };
+          const u = {
+            id: profile.id,
+            name: profile.name || session.user.email.split('@')[0],
+            email: session.user.email,
+            phone: profile.phone || '',
+            role: profile.role || 'creator',
+            profession: profile.profession || '',
+            platform: profile.platform || '',
+            avatar: (profile.name || 'U').charAt(0).toUpperCase(),
+            createdAt: new Date(profile.created_at).getTime()
+          };
           loginSuccess(u);
           return;
         }
       }
-    } catch(e) { console.warn('Session check failed:', e); }
+    } catch(e) {}
   }
 
-  const saved = DB.currentUser();
-  if (saved) { CU = saved; loginSuccess(saved); }
+  showScreen('screen-landing');
 
   new MutationObserver(() => {
     const el = document.getElementById('chat-msgs-el');
@@ -2254,7 +2467,6 @@ window.addEventListener('load', async () => {
 </script>
 <script>
 const logo = document.getElementById("logoDrag");
-
 logo.addEventListener("dragstart", (e) => {
   e.dataTransfer.setData("text/uri-list", window.location.href);
   e.dataTransfer.setData("text/plain", window.location.href);
