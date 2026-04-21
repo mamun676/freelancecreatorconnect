@@ -2145,6 +2145,7 @@ function cProfile() {
          ['Completed',       DB.projects().filter(p=>p.creatorId===CU.id&&p.status==='completed').length],
          ['Member Since',    new Date(u.createdAt).toLocaleDateString('en-IN',{month:'long',year:'numeric'})],
          ['Role',            u.role.charAt(0).toUpperCase()+u.role.slice(1)]]
+        ['Total Spent',     '₹' + fmt(totalSpent)]
         .map(([k,v]) => `<div class="info-row"><span class="key">${k}</span><span>${v}</span></div>`).join('')}
     </div>
   </div>`;
