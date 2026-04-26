@@ -2589,6 +2589,13 @@ function cChat() {
   }
   currentChatUserId = defaultOther;
 
+  setTimeout(async () => {
+    if (defaultOther && supaClient) {
+      const convId = await getOrCreateConversation(CU.id, defaultOther);
+      if (convId) await subscribeToConversation(convId, defaultOther);
+    }
+  }, 200);
+
   return `<div class="page-head"><h2>Messages</h2><p>Chat with your editors</p></div>${buildChat(CU.id, defaultOther)}`;
 }
 
@@ -2781,6 +2788,13 @@ function renderF(p) {
         defaultOther = relatedUserIds[0] || ''; 
     }
     currentChatUserId = defaultOther;
+
+        setTimeout(async () => {
+      if (defaultOther && supaClient) {
+        const convId = await getOrCreateConversation(CU.id, defaultOther);
+        if (convId) await subscribeToConversation(convId, defaultOther);
+      }
+    }, 200);
 
     m.innerHTML = `<div class="page-head"><h2>Messages</h2></div>${buildChat(CU.id, defaultOther)}`;
   }
