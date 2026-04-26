@@ -808,9 +808,6 @@ h1 em{
             <select id="su-platform"><option>YouTube</option><option>Instagram</option><option>TikTok</option><option>LinkedIn</option><option>Multiple</option></select>
           </div>
         </div>
-        <div id="su-freelancer-extra" style="display:none;">
-          <div class="upload-area" onclick="showToast('File upload — integrate cloud storage in production','info','')">Upload Resume / Portfolio (PDF)</div>
-        </div>
         <div id="signup-err" class="alert alert-e" style="display:none;margin-top:8px;"></div>
         <button class="btn btn-primary full-btn" style="margin-top:14px;" id="signup-btn" onclick="doSignup()">Create Account &rarr;</button>
         <div class="form-footer" style="margin-top:12px;">Already have an account? <a onclick="switchTab('login')">Log in</a></div>
@@ -1099,6 +1096,25 @@ let newProjectDraft = {};
 let newProjectFiles = []; // Track uploaded files before submitting
 let currentChatUserId = null; 
 let onlineUsers = new Set();
+let _signupOtpData = {};
+
+function validateEmailFmt(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+}
+
+function validatePhone(raw) {
+  const phone = (raw || '').replace(/\D/g, '');
+  if (phone.length !== 10) return { ok: false, msg: 'Phone must be exactly 10 digits.' };
+  if (!/^[6-9]/.test(phone)) return { ok: false, msg: 'Phone must start with 6, 7, 8, or 9.' };
+  if (/^(\d)\1{9}$/.test(phone)) return { ok: false, msg: 'Invalid phone number.' };
+  if (['1234567890','9876543210','0987654321'].includes(phone)) return { ok: false, msg: 'Invalid phone number.' };
+  return { ok: true, phone };
+}
+
+function validateEmailFmt(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+}
+
 function updateChatHeaderPresence() {
     if (!currentChatUserId) return;
     const dot = document.getElementById('chat-online-dot');
@@ -1276,7 +1292,6 @@ function setSRole(r) {
   document.getElementById('sr-c').className = 'role-btn' + (r==='creator'    ? ' ac' : '');
   document.getElementById('sr-f').className = 'role-btn' + (r==='freelancer' ? ' af' : '');
   document.getElementById('su-creator-extra').style.display  = r==='creator'    ? '' : 'none';
-  document.getElementById('su-freelancer-extra').style.display = r==='freelancer' ? '' : 'none';
 }
 
 function setBtn(id, loading, text) {
@@ -1287,133 +1302,255 @@ function setBtn(id, loading, text) {
 }
 
 async function doLogin() {
-  const email  = document.getElementById('login-email').value.trim();
-  const pw     = document.getElementById('login-pw').value;
-  const errEl  = document.getElementById('login-err');
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-pw').value;
+  const errEl = document.getElementById('login-err');
   errEl.style.display = 'none';
 
-  if (!email || !pw) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'flex'; return; }
-
-  setBtn('login-btn', true, 'Logging in…');
-
-  if (supaClient) {
-    try {
-      const { data, error } = await supaClient.auth.signInWithPassword({ email, password: pw });
-      if (!error && data.user) {
-        const { data: profile, error: pErr } = await supaClient.from('profiles').select('*').eq('id', data.user.id).single();
-        if (!pErr && profile) {
-          const u = {
-            id: profile.id,
-            name: profile.name || email.split('@')[0],
-            email: data.user.email,
-            phone: profile.phone || '',
-            role: profile.role || loginRole,
-            profession: profile.profession || '',
-            platform: profile.platform || '',
-            avatar: (profile.name || email).charAt(0).toUpperCase(),
-            createdAt: new Date(profile.created_at).getTime(),
-            skills: profile.skills || [],
-            portfolio_links: profile.portfolio_links || {},
-            resume_url: profile.resume_url || '',
-            photo_url: profile.photo_url || '',
-            experience: profile.experience || []
-          };
-          setBtn('login-btn', false);
-          loginSuccess(u);
-          showToast('Welcome back, ' + u.name.split(' ')[0] + '!', 'ok', '');
-          return;
-        } else {
-          const name = email.split('@')[0];
-          await supaClient.from('profiles').insert({
-            id: data.user.id, name, role: loginRole,
-            profession: '', platform: '', avatar: name.charAt(0).toUpperCase()
-          });
-          const u = {
-            id: data.user.id, name, email, phone: '',
-            role: loginRole, profession: '', platform: '',
-            avatar: name.charAt(0).toUpperCase(), createdAt: Date.now()
-          };
-          setBtn('login-btn', false);
-          loginSuccess(u);
-          showToast('Welcome, ' + u.name + '!', 'ok', '');
-          return;
-        }
-      } else {
-        setBtn('login-btn', false);
-        errEl.textContent = error?.message || 'Invalid email or password.';
-        errEl.style.display = 'flex';
-        return;
-      }
-    } catch(e) { console.warn('Supabase login error:', e); }
+  if (!email || !pw) {
+    errEl.textContent = 'Please fill in all fields.';
+    errEl.style.display = 'flex'; return;
+  }
+  if (!validateEmailFmt(email)) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'flex'; return;
   }
 
-  setBtn('login-btn', false);
-  errEl.textContent = 'Login failed. Please check your connection and try again.';
-  errEl.style.display = 'flex';
-}
+  setBtn('login-btn', true, 'Logging in...');
 
-async function doSignup() {
-  const name       = document.getElementById('su-name').value.trim();
-  const phone      = document.getElementById('su-phone').value.trim();
-  const email      = document.getElementById('su-email').value.trim();
-  const pw         = document.getElementById('su-pw').value;
-  const profession = document.getElementById('su-profession').value;
-  const platform   = document.getElementById('su-platform')?.value || '';
-  const errEl      = document.getElementById('signup-err');
+  function loginFail(msg) {
+    setBtn('login-btn', false);
+    errEl.textContent = msg || 'Invalid credentials.';
+    errEl.style.display = 'flex';
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-pw').value = '';
+  }
 
-  errEl.style.display = 'none';
-  if (!name || !email || !pw) { errEl.textContent = 'Please fill in all required fields.'; errEl.style.display = 'flex'; return; }
-  if (pw.length < 6)          { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'flex'; return; }
-
-  setBtn('signup-btn', true, 'Creating account...');
-
-  if (supaClient) {
-    try {
-      const { data, error: authError } = await supaClient.auth.signUp({
-        email, password: pw,
-        options: { data: { name, phone, role: signupRole, profession, platform } }
-      });
-      if (authError) { errEl.textContent = authError.message; errEl.style.display = 'flex'; setBtn('signup-btn', false); return; }
-
-      const authUser = data.user || (await supaClient.auth.getUser()).data.user;
-      if (authUser) {
-        const { error: profileError } = await supaClient.from('profiles').upsert({
-          id: authUser.id, name, phone, role: signupRole, profession, platform,
-          avatar: name.charAt(0).toUpperCase()
-        }, { onConflict: 'id' });
-      }
-
-      const u = {
-        id: authUser?.id || uid(), name, email, phone,
-        role: signupRole, profession, platform,
-        avatar: name.charAt(0).toUpperCase(), createdAt: Date.now()
-      };
-
-      const users = DB.users();
-      if (!users.find(x => x.id === u.id)) users.push({ ...u });
-      DB.saveUsers(users);
-
-      setBtn('signup-btn', false);
-
-      if (!data.session) {
-        showToast('Account created! Please confirm your email.', 'info', '');
-        switchTab('login');
-        document.getElementById('login-email').value = email;
-      } else {
-        loginSuccess(u);
-        showToast('Welcome, ' + name.split(' ')[0] + '!', 'ok', '');
-      }
-    } catch(e) {
-      errEl.textContent = 'Something went wrong. Please try again.';
-      errEl.style.display = 'flex';
-      setBtn('signup-btn', false);
-    }
+  if (!supaClient) {
+    loginFail('Login requires a connection. Please try again.');
     return;
   }
 
-  setBtn('signup-btn', false);
-  errEl.textContent = 'Signup requires a connection. Please try again.';
-  errEl.style.display = 'flex';
+  try {
+    const { data, error } = await supaClient.auth.signInWithPassword({ email, password: pw });
+
+    if (error || !data.user) {
+      loginFail('Invalid email or password.');
+      return;
+    }
+
+    if (!data.user.email_confirmed_at) {
+      await supaClient.auth.signOut();
+      loginFail('Please verify your email before logging in.');
+      return;
+    }
+
+    const { data: profile, error: pErr } = await supaClient
+      .from('profiles').select().eq('id', data.user.id).single();
+
+    if (pErr || !profile) {
+      await supaClient.auth.signOut();
+      loginFail('Invalid credentials.');
+      return;
+    }
+
+    if (profile.role !== loginRole) {
+      await supaClient.auth.signOut();
+      loginFail('Invalid credentials.');
+      return;
+    }
+
+    const u = {
+      id: profile.id,
+      name: profile.name || email.split('@')[0],
+      email: data.user.email,
+      phone: profile.phone || '',
+      role: profile.role,
+      profession: profile.profession || '',
+      platform: profile.platform || '',
+      avatar: profile.name || email.charAt(0).toUpperCase(),
+      createdAt: new Date(profile.created_at).getTime(),
+      skills: profile.skills || [],
+      portfoliolinks: profile.portfoliolinks || [],
+      resumeurl: profile.resumeurl || '',
+      photourl: profile.photourl || '',
+      experience: profile.experience || []
+    };
+
+    setBtn('login-btn', false);
+    loginSuccess(u);
+    showToast(`Welcome back, ${u.name.split(' ')[0]}!`, 'ok', '👋');
+
+  } catch(e) {
+    console.warn('Login error', e);
+    loginFail('Login failed. Please check your connection and try again.');
+  }
+}
+
+async function doSignup() {
+  const name = document.getElementById('su-name').value.trim();
+  const phoneRaw = document.getElementById('su-phone').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const pw = document.getElementById('su-pw').value;
+  const profession = document.getElementById('su-profession').value;
+  const platform = document.getElementById('su-platform')?.value || '';
+  const errEl = document.getElementById('signup-err');
+  errEl.style.display = 'none';
+
+  if (!name || !email || !pw) {
+    errEl.textContent = 'Please fill in all required fields.';
+    errEl.style.display = 'flex'; return;
+  }
+  if (!validateEmailFmt(email)) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'flex'; return;
+  }
+  if (pw.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.style.display = 'flex'; return;
+  }
+
+  let cleanPhone = '';
+  if (phoneRaw) {
+    const phoneResult = validatePhone(phoneRaw);
+    if (!phoneResult.ok) {
+      errEl.textContent = phoneResult.msg;
+      errEl.style.display = 'flex'; return;
+    }
+    cleanPhone = phoneResult.phone;
+  }
+
+  if (!supaClient) {
+    errEl.textContent = 'Signup requires a connection. Please try again.';
+    errEl.style.display = 'flex'; return;
+  }
+
+  _signupOtpData = { name, phone: cleanPhone, email, pw, profession, platform, role: signupRole };
+
+  setBtn('signup-btn', true, 'Sending OTP...');
+
+  try {
+    const { error } = await supaClient.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true }
+    });
+
+    if (error) {
+      setBtn('signup-btn', false);
+      if (error.message?.toLowerCase().includes('already registered')) {
+        errEl.textContent = 'This email is already registered. Please login instead.';
+      } else {
+        errEl.textContent = error.message || 'Failed to send OTP. Please try again.';
+      }
+      errEl.style.display = 'flex'; return;
+    }
+
+    if (!document.getElementById('signup-otp-fg')) {
+      const otpFg = document.createElement('div');
+      otpFg.className = 'fg';
+      otpFg.id = 'signup-otp-fg';
+      otpFg.innerHTML = `
+        <label>Verification code sent to ${email}</label>
+        <input id="signup-otp" type="text" inputmode="numeric"
+          maxlength="6" placeholder="Enter 6-digit code"
+          autocomplete="one-time-code"/>
+        <div class="otp-note">✓ Check your inbox (and spam folder)</div>`;
+      const btn = document.getElementById('signup-btn');
+      btn.parentElement.insertBefore(otpFg, btn);
+    }
+
+    const btn = document.getElementById('signup-btn');
+    btn.textContent = 'Verify & Create Account';
+    btn.onclick = doSignupVerifyOTP;
+    setBtn('signup-btn', false);
+
+  } catch(e) {
+    console.warn('Signup error', e);
+    setBtn('signup-btn', false);
+    errEl.textContent = 'Something went wrong. Please try again.';
+    errEl.style.display = 'flex';
+  }
+}
+
+async function doSignupVerifyOTP() {
+  const otp = (document.getElementById('signup-otp')?.value || '').trim();
+  const errEl = document.getElementById('signup-err');
+  errEl.style.display = 'none';
+
+  if (!otp || otp.length < 6) {
+    errEl.textContent = 'Please enter the 6-digit verification code.';
+    errEl.style.display = 'flex'; return;
+  }
+
+  setBtn('signup-btn', true, 'Verifying...');
+
+  try {
+    const { data, error } = await supaClient.auth.verifyOtp({
+      email: _signupOtpData.email,
+      token: otp,
+      type: 'email'
+    });
+
+    if (error || !data.user) {
+      setBtn('signup-btn', false);
+      errEl.textContent = 'Invalid or expired code. Please try again.';
+      errEl.style.display = 'flex';
+      document.getElementById('signup-otp').value = '';
+      return;
+    }
+
+    const { error: pwError } = await supaClient.auth.updateUser({
+      password: _signupOtpData.pw,
+  data: {
+    name: _signupOtpData.name,
+    phone: _signupOtpData.phone,
+    role: _signupOtpData.role,
+    profession: _signupOtpData.profession,
+    platform: _signupOtpData.platform
+  }
+    });
+    if (pwError) console.warn('Password set error', pwError);
+
+    const { name, phone, email, profession, platform, role } = _signupOtpData;
+
+    await supaClient.from('profiles').upsert({
+      id: data.user.id,
+      name, phone, role, profession, platform,
+      avatar: name.charAt(0).toUpperCase()
+    }, { onConflict: 'id' });
+
+    const u = {
+      id: data.user.id,
+      name, email, phone, role, profession, platform,
+      avatar: name.charAt(0).toUpperCase(),
+      createdAt: Date.now(),
+      skills: [], portfoliolinks: [],
+      resumeurl: '', photourl: '', experience: []
+    };
+
+    const users = Array.isArray(DB.users) ? DB.users : [];
+if (!users.find(x => x.id === u.id)) users.push({ ...u });
+DB.saveUsers(users);
+
+    setBtn('signup-btn', false);
+    _resetSignupForm();
+    loginSuccess(u);
+    showToast(`Welcome, ${name.split(' ')[0]}!`, 'ok', '🎉');
+
+  } catch(e) {
+    console.warn('OTP verify error', e);
+    setBtn('signup-btn', false);
+    errEl.textContent = 'Verification failed. Please try again.';
+    errEl.style.display = 'flex';
+  }
+}
+
+function _resetSignupForm() {
+  _signupOtpData = {};
+  const otpFg = document.getElementById('signup-otp-fg');
+  if (otpFg) otpFg.remove();
+  const btn = document.getElementById('signup-btn');
+  if (btn) { btn.textContent = 'Create Account'; btn.onclick = doSignup; }
 }
 
 async function loginSuccess(u) {
