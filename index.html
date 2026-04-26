@@ -502,7 +502,7 @@ h1 em{
 
 /* ── CHAT ── */
 .chat-wrap{display:flex;height:440px;background:var(--surface);border:1px solid var(--glass-border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
-.chat-list{width:200px;border-right:1px solid var(--glass-border);overflow-y:auto;flex-shrink:0;background:var(--bg2);}
+.chat-list{width:260px;border-right:1px solid var(--glass-border);overflow-y:auto;flex-shrink:0;background:var(--bg2);}
 .cc-item{padding:12px 13px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--glass-border);transition:background .2s;}
 .cc-item:hover,.cc-item.active{background:var(--surface);}
 .c-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),#6D28D9);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;flex-shrink:0;color:#fff;}
@@ -596,7 +596,7 @@ h1 em{
   .logo{font-size:1.1rem;}
   .logo-icon{width:28px;height:28px;font-size:.82rem;}
   .nav-greeting{display:none !important;}
-  .nav-right .btn {display:none !important;}
+  .nav-right .btn-primary{display:none !important;}
   .hamburger{display:flex;}
   .sidebar{position:fixed;top:0;left:0;bottom:0;transform:translateX(-100%);padding-top:calc(var(--nav-h) + 10px);box-shadow:4px 0 24px rgba(0,0,0,.12);}
   .sidebar.mobile-open{transform:translateX(0);}
@@ -610,7 +610,7 @@ h1 em{
    h1{letter-spacing:-1px;}
   .stats-bar{gap:0;}
   .stat{padding:12px 12px;}
-  .chat-wrap{height:auto;}
+  .chat-wrap{display: block; height:auto;}
   .chat-list{
   width:0;
   min-width:0;
@@ -628,7 +628,7 @@ h1 em{
 }
 .chat-toggle{
   position: fixed;
-  top: 70px;
+  top: calc(var(--nav-h) + 10px);
   left: 10px;
   z-index: 1000;
   padding: 8px 12px;
@@ -1137,13 +1137,18 @@ let currentChatUserId = null;
 let onlineUsers = new Set();
 let _signupOtpData = {};
 
-function validateEmailFmt(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
-}
 
 function toggleChat(){
-  document.querySelector('.chat-list')
-    .classList.toggle('open');
+  const chatList = document.querySelector('.chat-list');
+  const btn = document.getElementById('chatToggleBtn');
+
+  chatList.classList.toggle('open');
+
+  if(chatList.classList.contains('open')){
+    btn.innerText = "Close";
+  } else {
+    btn.innerText = "Chats";
+  }
 }
 
 function validatePhone(raw) {
@@ -3454,9 +3459,7 @@ function buildChat(myId, otherDefaultId) {
 
   return `
   <div class="chat-wrap">
-     <button class="chat-toggle" onclick="toggleChat()">
-      Chats
-    </button>
+    <button id="chatToggleBtn" class="chat-toggle" onclick="toggleChat()">Chats</button>
     <div class="chat-list">
       ${conversations.map(c => `
         <div class="cc-item${c.key===activeKey?' active':''}" data-uid="${c.user.id}" onclick="switchChat('${myId}','${c.user.id}')">
