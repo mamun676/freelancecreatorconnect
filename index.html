@@ -625,7 +625,8 @@ h1 em{
     flex:1;
     overflow-y:auto;
   }
-  
+
+
   .chat-list{
     position: fixed;
     left: -260px;
@@ -1668,9 +1669,9 @@ async function loginSuccess(u) {
           else if (CU.role === 'freelancer' && fPageActive !== 'chat') renderF(fPageActive || 'home');
         });
       })
+
       // 2. Listen to Messages
-      // 2. Listen to Messages
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
+      /* .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
         const newMsg = payload.new;
         if (!newMsg) return;
         
@@ -1713,7 +1714,8 @@ if (isS3Key(realtimeFileUrl)) {
         } catch (err) {
             console.error("Chat update error: ", err);
         }
-      })
+      }) */
+
       // 3. Listen to Presence (Online/Offline)
       .on('presence', { event: 'sync' }, () => {
         const state = masterChannel.presenceState();
@@ -3859,6 +3861,254 @@ s1.charset='UTF-8';
 s1.setAttribute('crossorigin','*');
 s0.parentNode.insertBefore(s1,s0);
 })();
+
+let currentChatChannel = null;
+let currentConversationId = null;
+const renderedMessageIds = new Set();
+
+async function getOrCreateConversation(userId1, userId2) {
+  if (!supaClient) return null;
+ 
+  // Deterministic sort — same result regardless of who is "sender"
+  const [uid1, uid2] = [userId1, userId2].sort();
+ 
+  // Try to find existing conversation
+  const { data: existing } = await supaClient
+    .from('conversations')
+    .select('id')
+    .eq('user1_id', uid1)
+    .eq('user2_id', uid2)
+    .maybeSingle();
+ 
+  if (existing) return existing.id;
+ 
+  // Create it if it doesn't exist yet
+  const { data: created, error } = await supaClient
+    .from('conversations')
+    .insert({ user1_id: uid1, user2_id: uid2 })
+    .select('id')
+    .single();
+ 
+  if (error) {
+    console.error('[Chat] Failed to create conversation:', error);
+    return null;
+  }
+ 
+  return created.id;
+}
+
+async function subscribeToConversation(conversationId, otherUserId) {
+  if (!supaClient || !conversationId) return;
+ 
+  // ── 1. Cleanup: unsubscribe from previous conversation channel ──
+  if (currentChatChannel) {
+    await supaClient.removeChannel(currentChatChannel);
+    currentChatChannel = null;
+    console.log('[Chat] Previous channel removed.');
+  }
+ 
+  currentConversationId = conversationId;
+ 
+  // ── 2. Open new channel filtered by conversation_id ──
+  // The filter runs server-side — we never receive messages from other chats.
+  currentChatChannel = supaClient
+    .channel(`chat_convo_${conversationId}`)
+    .on(
+      'postgres_changes',
+      {
+        event:  'INSERT',
+        schema: 'public',
+        table:  'messages',
+        filter: `conversation_id=eq.${conversationId}` // ← conversation_id ONLY
+      },
+      async (payload) => {
+        const newMsg = payload.new;
+        if (!newMsg || !newMsg.id) return;
+ 
+        // ── 3. Deduplication: skip messages we already rendered optimistically ──
+        if (renderedMessageIds.has(newMsg.id)) {
+          console.log('[Chat] Duplicate skipped:', newMsg.id);
+          return;
+        }
+        renderedMessageIds.add(newMsg.id);
+ 
+        // ── 4. Resolve S3 key → signed URL if needed ──
+        let fileUrl = newMsg.file_url || null;
+        if (isS3Key(fileUrl)) {
+          try { fileUrl = await s3GetUrl(fileUrl); }
+          catch (e) { fileUrl = null; }
+        }
+ 
+        // ── 5. Push into in-memory store ──
+        const key = [CU.id, otherUserId].sort().join('_');
+        const allMsgs = DB.messages();
+        if (!allMsgs[key]) allMsgs[key] = [];
+ 
+        allMsgs[key].push({
+          id:       newMsg.id,
+          from:     newMsg.sender_id,
+          text:     newMsg.text,
+          file_url: fileUrl,
+          time:     new Date(newMsg.created_at).getTime()
+        });
+        DB.saveMessages(allMsgs);
+ 
+        // ── 6. Instant UI update — only if this conversation is currently open ──
+        if (currentChatUserId === otherUserId) {
+          const el = document.getElementById('chat-msgs-el');
+          if (el) {
+            el.innerHTML = renderMsgs(allMsgs[key], CU.id);
+            el.scrollTop = el.scrollHeight;
+          }
+        }
+ 
+        updateChatSidebarPreviews();
+      }
+    )
+    .subscribe((status) => {
+      console.log(`[Chat] Channel status for ${conversationId}:`, status);
+    });
+}
+
+async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName = null, overrideText = null) {
+ 
+  // ── Resolve message text ──
+  let text = '';
+  const inp = document.getElementById('chat-inp-el');
+ 
+  if (overrideText) {
+    text = overrideText;
+  } else if (overrideFileUrl) {
+    text = 'Video: ' + (overrideFileName || 'attachment');
+  } else {
+    if (!inp || !inp.value.trim()) return;
+    text = inp.value.trim();
+    inp.value = ''; // clear input immediately for responsiveness
+  }
+ 
+  // ── Resolve S3 key → signed URL for local display only ──
+  let displayFileUrl = overrideFileUrl;
+  if (isS3Key(overrideFileUrl)) {
+    try { displayFileUrl = await s3GetUrl(overrideFileUrl); }
+    catch (e) { displayFileUrl = null; }
+  }
+ 
+  // ── 1. Optimistic update: add to local store & render immediately ──
+  const tempId = 'opt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+  const key = [myId, otherId].sort().join('_');
+  const allMsgs = DB.messages();
+  if (!allMsgs[key]) allMsgs[key] = [];
+ 
+  allMsgs[key].push({
+    id:       tempId,         // temporary — replaced conceptually by real DB id
+    from:     myId,
+    text,
+    file_url: displayFileUrl,
+    time:     Date.now()
+  });
+  DB.saveMessages(allMsgs);
+ 
+  // Render right away — user sees their own message instantly
+  const el = document.getElementById('chat-msgs-el');
+  if (el) {
+    el.innerHTML = renderMsgs(allMsgs[key], myId);
+    el.scrollTop = el.scrollHeight;
+  }
+  updateChatSidebarPreviews();
+ 
+  // ── 2. Persist to Supabase ──
+  if (!supaClient) return;
+ 
+  try {
+    // Get or create conversation using conversation_id (never receiver_id)
+    const conversationId = await getOrCreateConversation(myId, otherId);
+    if (!conversationId) throw new Error('Could not resolve conversation ID');
+ 
+    // Insert — store the raw S3 key in DB, NOT the signed URL
+    const { data: inserted, error } = await supaClient
+      .from('messages')
+      .insert({
+        conversation_id: conversationId,
+        sender_id:       myId,
+        text,
+        file_url:        overrideFileUrl   // raw S3 key goes to DB
+      })
+      .select('id')
+      .single();
+ 
+    if (error) throw error;
+     if (inserted?.id) {
+      renderedMessageIds.add(inserted.id);
+    }
+   if (currentConversationId !== conversationId) {
+      await subscribeToConversation(conversationId, otherId);
+    }
+ 
+  } catch (e) {
+    console.error('[Chat] sendMsg failed:', e);
+    showToast('Message failed to send.', 'err');
+  }
+}
+
+async function switchChat(myId, otherId) {
+  // Update active conversation tracking
+  currentChatUserId = otherId;
+ 
+  const key   = [myId, otherId].sort().join('_');
+  const msgs  = DB.messages()[key] || [];
+  const other = DB.users().find(u => u.id === otherId);
+ 
+  // ── Update sidebar active state ──
+  document.querySelectorAll('.cc-item').forEach(el => el.classList.remove('active'));
+  const sidebarItem = document.querySelector(`.cc-item[data-uid="${otherId}"]`);
+  if (sidebarItem) sidebarItem.classList.add('active');
+ 
+  // ── Render chat area ──
+  const area = document.querySelector('.chat-area');
+  if (area && other) {
+    area.innerHTML = `
+      <div class="ch-header">
+        <div class="c-av" style="width:28px;height:28px;font-size:.7rem;">${other.avatar}</div>
+        <div class="online-dot" id="chat-online-dot"></div>
+        <span>${other.name}</span>
+        <span id="chat-status-text" style="font-size:.7rem;margin-left:4px;color:var(--text-3);">Connecting…</span>
+      </div>
+      <div class="chat-msgs" id="chat-msgs-el">${renderMsgs(msgs, myId)}</div>
+      <div class="chat-inp-bar">
+        <label for="chat-upload-${otherId}"
+          style="cursor:pointer;display:flex;align-items:center;margin-right:4px;color:var(--text-3);transition:color .2s;"
+          onmouseover="this.style.color='var(--accent)'"
+          onmouseout="this.style.color='var(--text-3)'">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+        </label>
+        <input type="file" id="chat-upload-${otherId}" accept="video/*" style="display:none;"
+          onchange="handleChatUpload(this,'${myId}','${otherId}')"/>
+        <input class="chat-inp" id="chat-inp-el" placeholder="Type a message…"
+          onkeydown="if(event.key==='Enter') sendMsg('${myId}','${otherId}')"/>
+        <button class="btn btn-primary btn-sm"
+          onclick="sendMsg('${myId}','${otherId}')">Send</button>
+      </div>`;
+ 
+    // Scroll to bottom
+    const msgEl = document.getElementById('chat-msgs-el');
+    if (msgEl) msgEl.scrollTop = msgEl.scrollHeight;
+  }
+ 
+  // Update presence dot
+  updateChatHeaderPresence();
+ 
+  // ── Subscribe to this conversation's realtime channel ──
+  if (supaClient) {
+    const conversationId = await getOrCreateConversation(myId, otherId);
+    if (conversationId) {
+      await subscribeToConversation(conversationId, otherId);
+    }
+  }
+}
+
 </script>
 <!--End of Tawk.to Script-->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
