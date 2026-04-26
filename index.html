@@ -610,31 +610,58 @@ h1 em{
    h1{letter-spacing:-1px;}
   .stats-bar{gap:0;}
   .stat{padding:12px 12px;}
-  .chat-wrap{display: block; height:auto;}
+    .chat-wrap{
+    display:flex;          /* ❌ block hatao */
+    flex-direction:column; /* ✅ add karo */
+    height: calc(100vh - var(--nav-h) - 20px);
+  }
+  .chat-area{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .chat-msgs{
+    flex:1;
+    overflow-y:auto;
+  }
+
+}
+
   .chat-list{
-  width:0;
-  min-width:0;
-  overflow:hidden;
-  transition: width .3s ease;
+    position: fixed;
+    left: -260px;
+    top: 0;
+    bottom: 0;
+    width: 260px;
+    transition: left .3s ease;
+    background: var(--surface);
+    z-index: 1100;
 }
   .chat-list.open{
-  position: fixed;
   left: 0;
-  top: 0;
-  bottom: 0;
-  width: 260px; /* ✅ MUST */
-  background: var(--surface);
-  z-index: 999;
-}
+  }
+
 .chat-toggle{
   position: fixed;
-  top: calc(var(--nav-h) + 10px);
+  top: calc(var(--nav-h) + 50px);
   left: 10px;
-  z-index: 1000;
+  z-index: 1200;
   padding: 8px 12px;
   border-radius: 8px;
   background: var(--accent);
   color: white;
+}
+.chat-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 1000;
+  display: none;
+}
+
+.chat-overlay.show{
+  display: block;
 }
   .cards-grid{grid-template-columns:1fr 1fr;}
   .f-grid{grid-template-columns:1fr 1fr;}
@@ -1142,13 +1169,13 @@ function toggleChat(){
   const chatList = document.querySelector('.chat-list');
   const btn = document.getElementById('chatToggleBtn');
 
+  if(!chatList || !btn) return; // ✅ safety
+
   chatList.classList.toggle('open');
 
-  if(chatList.classList.contains('open')){
-    btn.innerText = "Close";
-  } else {
-    btn.innerText = "Chats";
-  }
+  btn.innerText = chatList.classList.contains('open') 
+    ? "Close" 
+    : "Chats";
 }
 
 function validatePhone(raw) {
