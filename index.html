@@ -982,6 +982,72 @@ h1 em{
 const SUPABASE_URL = "https://sfzbrygqpodjinhpagaz.supabase.co";
 const SUPABASE_KEY = "sb_publishable_h1rmGWdbBlMWPhkKugtOQw_6tP5ArtI";
 
+// ═══════════════════════════════════════
+// AWS S3 HELPERS
+// ═══════════════════════════════════════
+const S3_EDGE_URL = 'https://sfzbrygqpodjinhpagaz.supabase.co/functions/v1/get-s3-url';
+const s3UrlCache = {}; // { [key]: { url, expiry } }
+
+async function s3Upload(file, folder) {
+  // ✅ FIX: Session token lo, anon key nahi
+  const { data: { session } } = await supaClient.auth.getSession();
+  if (!session) throw new Error('User not logged in');
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const fileName = `${folder}/${CU.id}_${Date.now()}_${safeName}`;
+
+  // Step 1: Edge Function se presigned upload URL lo
+  const res = await fetch(S3_EDGE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`  // ✅ FIXED
+    },
+    body: JSON.stringify({ action: 'upload', fileName, fileType: file.type })
+  });
+  if (!res.ok) throw new Error(`S3 URL Error: ${res.status}`);
+  const { uploadUrl, key } = await res.json();
+
+  // Step 2: Directly PUT to S3
+  const uploadRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file
+  });
+  if (!uploadRes.ok) throw new Error(`S3 Upload Error: ${uploadRes.status}`);
+
+  return key; // ← Yeh DB mein store hoga
+}
+
+async function s3GetUrl(fileKey) {
+  if (!fileKey) return null;
+  // Cache check (13 min)
+  if (s3UrlCache[fileKey] && s3UrlCache[fileKey].expiry > Date.now()) {
+    return s3UrlCache[fileKey].url;
+  }
+  // ✅ FIX: Session token lo
+  const { data: { session } } = await supaClient.auth.getSession();
+  if (!session) return null;
+
+  const res = await fetch(S3_EDGE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`  // ✅ FIXED
+    },
+    body: JSON.stringify({ action: 'download', fileKey })
+  });
+  if (!res.ok) return null;
+  const { downloadUrl } = await res.json();
+  s3UrlCache[fileKey] = { url: downloadUrl, expiry: Date.now() + 13 * 60 * 1000 };
+  return downloadUrl;
+}
+
+// S3 key detect karo (http URL nahi hai to key hai)
+function isS3Key(str) {
+  return str && !str.startsWith('http') && !str.startsWith('blob:');
+}
+
 let supaClient;
 try {
   if (!window.supabaseClient) {
@@ -1393,7 +1459,7 @@ async function loginSuccess(u) {
       })
       // 2. Listen to Messages
       // 2. Listen to Messages
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, async (payload) => {
         const newMsg = payload.new;
         if (!newMsg) return;
         
@@ -1410,10 +1476,16 @@ async function loginSuccess(u) {
             
             // Duplicate check
             const exists = allMsgs[key].find(m => m.text === newMsg.text && m.from === newMsg.sender_id && Math.abs(m.time - new Date(newMsg.created_at).getTime()) < 5000);
+            // ← YEH ADD KAR
+let realtimeFileUrl = newMsg.file_url || null;
+if (isS3Key(realtimeFileUrl)) {
+  try { realtimeFileUrl = await s3GetUrl(realtimeFileUrl); }
+  catch (e) { realtimeFileUrl = null; }
+}
             
             if (!exists) {
                 allMsgs[key].push({
-                    from: newMsg.sender_id, text: newMsg.text, file_url: newMsg.file_url || null, time: new Date(newMsg.created_at).getTime()
+                    from: newMsg.sender_id, text: newMsg.text, file_url: realtimeFileUrl, time: new Date(newMsg.created_at).getTime()
                 });
                 DB.saveMessages(allMsgs);
             }
@@ -1520,23 +1592,30 @@ async function syncFromSupabase(u) {
         .order('created_at', { ascending: true });
 
       if (messages && messages.length > 0) {
-        const msgMap = {};
-        messages.forEach(m => {
-          const c = convos.find(x => x.id === m.conversation_id);
-          if (c) {
-            const otherId = c.user1_id === u.id ? c.user2_id : c.user1_id;
-            const key = [u.id, otherId].sort().join('_');
-            
-            if (!msgMap[key]) msgMap[key] = [];
-            msgMap[key].push({
-              from: m.sender_id, 
-              text: m.text,
-              file_url: m.file_url || null,
-              time: new Date(m.created_at).getTime()
-            });
-          }
-        });
-        DB.saveMessages(msgMap);
+        // ✅ NAYA CODE:
+const msgMap = {};
+for (const m of messages) {          // forEach → for...of (async await ke liye)
+  const c = convos.find(x => x.id === m.conversationid);
+  if (c) {
+    const otherId = c.user1id === u.id ? c.user2id : c.user1id;
+    const key = [u.id, otherId].sort().join('_');
+    if (!msgMap[key]) msgMap[key] = [];
+
+    // S3 key → signed URL convert karo
+    let fileurl = m.fileurl || null;
+    if (isS3Key(fileurl)) {
+      try { fileurl = await s3GetUrl(fileurl); }
+      catch (e) { fileurl = null; }
+    }
+
+    msgMap[key].push({
+      from: m.senderid, text: m.text,
+      fileurl,                         // ← Ab signed URL hai
+      time: new Date(m.createdat).getTime()
+    });
+  }
+}
+DB.saveMessages(msgMap);
       }
     }
   } catch(e) {
@@ -2084,20 +2163,35 @@ function wfN() {
           showToast('DB Error: ' + error.message, 'err', '');
           const revertedProjs = DB.projects().filter(x => x.id !== newP.id);
           DB.saveProjects(revertedProjs);
-        } else {
-          // Mock attachments insert for complete UI experience
-          newAttachments.forEach(att => {
-             supaClient.from('project_attachments').insert({
-                project_id: att.projectId, creator_id: CU.id, file_name: att.name,
-                file_url: 'uploaded_via_dashboard', file_type: att.type, file_size: att.size, duration: att.duration
-             }).then(()=>{});
-          });
+        } // ✅ NAYA CODE:
+else {
+  // Pehle show karo, phir background mein files upload karo
+  showToast('Project Requests Sent! Waiting for a freelancer.', 'ok', '🎉');
+  activeManageProjectId = null;
+  const newProjectFiles_copy = [...newProjectFiles];
+  newProjectFiles = [];
+  cPage('projects', document.querySelector('[data-page=projects]'));
 
-          showToast('Project Requests Sent! Waiting for a freelancer.', 'ok', '');
-          activeManageProjectId = null;
-          newProjectFiles = [];
-          cPage('projects', document.querySelector('[data-page="projects"]'));
-        }
+  // Background mein S3 upload + DB insert
+  (async () => {
+    for (const f of newProjectFiles_copy) {   // ← neeche dekho
+      try {
+        const s3Key = await s3Upload(f.file, 'projects');
+        await supaClient.from('project_attachments').insert({
+          project_id: newP.id,
+          creator_id: CU.id,
+          file_name: f.name,
+          file_url: s3Key,        // ← Real S3 key!
+          file_type: f.type,
+          file_size: f.size,
+          duration: f.duration
+        });
+      } catch (e) {
+        console.warn('Attachment upload failed:', f.name, e);
+      }
+    }
+  })();
+}
       });
       return;
     }
@@ -2651,14 +2745,12 @@ async function uploadFinalVideo(pid) {
   try {
     if (supaClient) {
       if (progFill) progFill.style.width = '20%';
-      const path = `final/${CU.id}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-      const { data: uploadData, error: uploadError } =
-        await supaClient.storage.from('videos').upload(path, file, { cacheControl:'3600', upsert:false });
-      if (uploadError) throw uploadError;
-      if (progFill) progFill.style.width = '60%';
-      const { data: urlData } = supaClient.storage.from('videos').getPublicUrl(uploadData.path);
-      fileUrl = urlData?.publicUrl || null;
-      if (progFill) progFill.style.width = '80%';
+     // ✅ NAYA CODE:
+if (progFill) progFill.style.width = '20%';
+const s3Key = await s3Upload(file, 'final');   // S3 pe upload
+if (progFill) progFill.style.width = '60%';
+fileUrl = s3Key;   // ← sendMsg ko key do (signed URL woh khud banayega)
+if (progFill) progFill.style.width = '80%';
     }
 
     if (supaClient) await supaClient.from('projects').update({ edited_uploaded: true }).eq('id', proj.id);
@@ -3297,11 +3389,9 @@ async function handleChatUpload(input, myId, otherId) {
   let fileUrl = null;
   try {
     if (supaClient) {
-      const path = `chat/${myId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-      const { data: uploadData, error } = await supaClient.storage.from('videos').upload(path, file);
-      if (error) throw error;
-      const { data: urlData } = supaClient.storage.from('videos').getPublicUrl(uploadData.path);
-      fileUrl = urlData?.publicUrl || null;
+      // ✅ NAYA CODE:
+const s3Key = await s3Upload(file, 'chat');
+fileUrl = s3Key;   // ← S3 key, sendMsg handle karega
     }
     
     await sendMsg(myId, otherId, fileUrl, file.name);
@@ -3338,7 +3428,13 @@ async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName =
   const key = [myId, otherId].sort().join('_');
   const allMsgs = DB.messages();
   if (!allMsgs[key]) allMsgs[key] = [];
-  allMsgs[key].push({ from: myId, text: text, file_url: overrideFileUrl, time: Date.now() });
+  // ← YEH 3 LINES ADD KAR (pehle)
+let displayFileUrl = overrideFileUrl;
+if (isS3Key(overrideFileUrl)) {
+  try { displayFileUrl = await s3GetUrl(overrideFileUrl); }
+  catch (e) { displayFileUrl = null; }
+}
+  allMsgs[key].push({ from: myId, text: text, file_url: displayFileUrl, time: Date.now() });
   DB.saveMessages(allMsgs);
 
   const el = document.getElementById('chat-msgs-el');
