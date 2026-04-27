@@ -1639,7 +1639,7 @@ function _resetSignupForm() {
 
 async function loginSuccess(u) {
   CU = u;
-  DB.setCurrentUser(u); 
+  DB.setCurrentUser(u);
 
   if (u.role === 'creator') {
     document.getElementById('c-nav-name').textContent  = u.name.split(' ')[0];
@@ -1647,19 +1647,48 @@ async function loginSuccess(u) {
     document.getElementById('c-sb-avatar').textContent = u.avatar || u.name.charAt(0).toUpperCase();
     document.getElementById('c-sb-role').textContent   = 'Creator · ' + (u.platform || '');
     showScreen('screen-creator');
-    renderC('home');
+     document.getElementById('c-main').innerHTML = `
+      <div style="padding:32px 0;">
+        <div style="height:28px;width:200px;background:var(--bg2);border-radius:8px;margin-bottom:24px;animation:pulse 1.5s infinite;"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+          <div style="height:90px;background:var(--bg2);border-radius:14px;animation:pulse 1.5s infinite;"></div>
+          <div style="height:90px;background:var(--bg2);border-radius:14px;animation:pulse 1.5s infinite;"></div>
+          <div style="height:90px;background:var(--bg2);border-radius:14px;animation:pulse 1.5s infinite;"></div>
+        </div>
+        <div style="height:18px;width:140px;background:var(--bg2);border-radius:6px;margin-bottom:12px;animation:pulse 1.5s infinite;"></div>
+        <div style="height:64px;background:var(--bg2);border-radius:14px;margin-bottom:8px;animation:pulse 1.5s infinite;"></div>
+        <div style="height:64px;background:var(--bg2);border-radius:14px;margin-bottom:8px;animation:pulse 1.5s infinite;"></div>
+      </div>`;
   } else {
     document.getElementById('f-nav-name').textContent  = u.name.split(' ')[0];
     document.getElementById('f-sb-name').textContent   = u.name;
     document.getElementById('f-sb-avatar').textContent = u.avatar || u.name.charAt(0).toUpperCase();
     document.getElementById('f-sb-role').textContent   = 'Freelancer · ' + (u.profession || '');
     showScreen('screen-freelancer');
-    renderF('home');
-    // Update avatar with photo if available
+    document.getElementById('f-main').innerHTML = `
+      <div style="padding:32px 0;">
+        <div style="height:28px;width:200px;background:var(--bg2);border-radius:8px;margin-bottom:24px;animation:pulse 1.5s infinite;"></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
+          <div style="height:90px;background:var(--bg2);border-radius:14px;animation:pulse 1.5s infinite;"></div>
+          <div style="height:90px;background:var(--bg2);border-radius:14px;animation:pulse 1.5s infinite;"></div>
+          <div style="height:90px;background:var(--bg2);border-radius:14px;animation:pulse 1.5s infinite;"></div>
+          <div style="height:90px;background:var(--bg2);border-radius:14px;animation:pulse 1.5s infinite;"></div>
+        </div>
+        <div style="height:64px;background:var(--bg2);border-radius:14px;margin-bottom:8px;animation:pulse 1.5s infinite;"></div>
+        <div style="height:64px;background:var(--bg2);border-radius:14px;animation:pulse 1.5s infinite;"></div>
+      </div>`;
     if (u.photo_url) { updateAvatarsEverywhere(); }
   }
+
+  // ✅ KEY FIX: Wait for sync to finish, THEN re-render dashboard with real data
   await syncFromSupabase(u);
-  if (u.role === 'freelancer') { await loadFreelancerProfile(); }
+
+  if (u.role === 'freelancer') {
+    await loadFreelancerProfile();
+    renderF('home'); // ← Re-render with real data
+  } else {
+    renderC('home'); // ← Re-render with real data
+  }
 
   // 🟢 MASTER REAL-TIME SYSTEM (NO CONNECTION-KILLER BUGS)
   if (supaClient && !window.realtimeInitialized) {
@@ -2273,7 +2302,7 @@ if (wfStep === 7) {
     // Project aur uski details dynamically fetch kar rahe hain
     const p = DB.projects().find(x => x.id === activeManageProjectId);
     const budget = p ? p.budget : 0;
-    const fee = Math.round(budget * 0.05);
+    const fee = Math.round(budget * 0.03);
     const total = budget + fee;
     const eName = selFreelancerName || (p ? DB.users().find(u => u.id === p.freelancerId)?.name : 'Editor');
     const cType = selContent || (p ? p.contentType : 'Video');
@@ -2287,7 +2316,7 @@ if (wfStep === 7) {
           <div class="info-row"><span class="key">Editor</span><span>${eName}</span></div>
           <div class="info-row"><span class="key">Content Type</span><span>${cType}</span></div>
           <div class="info-row"><span class="key">Base Amount</span><span id="pay-base">₹${fmt(budget)}</span></div>
-          <div class="info-row"><span class="key">Platform Fee (5%)</span><span id="pay-fee">₹${fmt(fee)}</span></div>
+          <div class="info-row"><span class="key">Transaction Charge (3%)</span><span id="pay-fee">₹${fmt(fee)}</span></div>
           <div class="info-row" style="font-weight:600;"><span style="color:var(--accent);">Total</span><span id="pay-total" style="color:var(--accent);">₹${fmt(total)}</span></div>
         </div>
         <div class="fg"><label>Payment Method</label>
@@ -2325,7 +2354,7 @@ async function completePayment() {
   if (!p) { showToast('Project not found', 'err', ''); return; }
 
   const budget = p.budget;
-  const fee    = Math.round(budget * 0.05);
+  const fee    = Math.round(budget * 0.03);
   const total  = budget + fee;
 
   const btn = document.querySelector('.btn-green-btn');
@@ -2536,7 +2565,7 @@ else {
       setTimeout(() => {
         const p = DB.projects().find(x => x.id === activeManageProjectId);
         if(!p) return;
-        const fee = Math.round(p.budget * 0.05);
+        const fee = Math.round(p.budget * 0.03);
         document.getElementById('pay-base').textContent = '₹'+fmt(p.budget); 
         document.getElementById('pay-fee').textContent = '₹'+fmt(fee); 
         document.getElementById('pay-total').textContent = '₹'+fmt(p.budget+fee);
