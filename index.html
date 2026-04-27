@@ -1165,6 +1165,7 @@ let _signupOtpData = {};
 let currentChatChannel = null;
 let currentConversationId = null;
 const renderedMessageIds = new Set();
+let isSubscribing = false;
 
 function toggleChat(){
   const chatList = document.querySelector('.chat-list');
@@ -3847,6 +3848,7 @@ async function subscribeToConversation(conversationId, otherUserId) {
   if (currentChatChannel) {
     await supaClient.removeChannel(currentChatChannel);
     currentChatChannel = null;
+    isSubscribing = false;
     console.log('[Chat] Previous channel removed.');
   }
  
