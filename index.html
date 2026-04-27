@@ -3833,91 +3833,222 @@ s0.parentNode.insertBefore(s1,s0);
 
 async function getOrCreateConversation(userId1, userId2) {
   if (!supaClient) return null;
- 
-  // Deterministic sort — same result regardless of who is "sender"
   const [uid1, uid2] = [userId1, userId2].sort();
- 
-  // Try to find existing conversation
+
   const { data: existing } = await supaClient
     .from('conversations')
     .select('id')
     .eq('user1_id', uid1)
     .eq('user2_id', uid2)
     .maybeSingle();
- 
+
   if (existing) return existing.id;
- 
-  // Create it if it doesn't exist yet
+
   const { data: created, error } = await supaClient
     .from('conversations')
     .insert({ user1_id: uid1, user2_id: uid2 })
     .select('id')
     .single();
- 
+
   if (error) {
     console.error('[Chat] Failed to create conversation:', error);
     return null;
   }
- 
   return created.id;
 }
+let _subLock = false;
+let _pendingSub = null;
 
 async function subscribeToConversation(conversationId, otherUserId) {
   if (!supaClient || !conversationId) return;
   if (currentConversationId === conversationId && currentChatChannel) return;
-  if (isSubscribing) return;
-  isSubscribing = true;
 
-  if (currentChatChannel) {
-    try { await supaClient.removeChannel(currentChatChannel); } catch(e) {}
-    currentChatChannel = null;
-  }
+  _pendingSub = { conversationId, otherUserId };
+  if (_subLock) return;
 
-  currentConversationId = conversationId;
+  _subLock = true;
+  try {
+    while (_pendingSub) {
+      const { conversationId: cid, otherUserId: oid } = _pendingSub;
+      _pendingSub = null;
 
-  currentChatChannel = supaClient
-    .channel(`chat_convo_${conversationId}`)
-    .on('postgres_changes', {
-      event: 'INSERT', schema: 'public',
-      table: 'messages',
-      filter: `conversation_id=eq.${conversationId}`
-    }, async (payload) => {
-      const newMsg = payload.new;
-      if (!newMsg || !newMsg.id) return;
-      if (renderedMessageIds.has(newMsg.id)) return;
-      renderedMessageIds.add(newMsg.id);
+      if (currentConversationId === cid && currentChatChannel) continue;
 
-      let fileUrl = newMsg.file_url || null;
-      if (isS3Key(fileUrl)) {
-        try { fileUrl = await s3GetUrl(fileUrl); } catch(e) { fileUrl = null; }
+      // Tear down old channel
+      if (currentChatChannel) {
+        const old = currentChatChannel;
+        currentChatChannel = null;
+        currentConversationId = null;
+        try { await supaClient.removeChannel(old); } catch (e) {}
       }
 
-      const key = [CU.id, otherUserId].sort().join('_');
-      const allMsgs = DB.messages();
-      if (!allMsgs[key]) allMsgs[key] = [];
-      allMsgs[key].push({
-        id: newMsg.id, from: newMsg.sender_id,
-        text: newMsg.text, file_url: fileUrl,
-        time: new Date(newMsg.created_at).getTime()
-      });
-      DB.saveMessages(allMsgs);
+      currentConversationId = cid;
 
-      if (currentChatUserId !== otherUserId) {
-  const senderUser = DB.users().find(u => u.id === otherUserId);
-  showToast(`New message from ${senderUser?.name || 'someone'}`, 'info', '💬');
+      // Build new channel and WAIT for SUBSCRIBED
+      await new Promise((resolve) => {
+        const channelName = `chat_${cid}_${CU.id}`;
+        const ch = supaClient
+          .channel(channelName)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'messages',
+              filter: `conversation_id=eq.${cid}`
+            },
+            async (payload) => {
+              await handleIncomingRealtimeMessage(payload, oid);
+            }
+          )
+          .subscribe((status) => {
+            console.log(`[Chat] ${channelName} → ${status}`);
+            if (status === 'SUBSCRIBED') {
+              currentChatChannel = ch;
+              resolve();
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+              currentChatChannel = ch;
+              resolve();
+            }
+          });
+
+        // Safety timeout — never hang forever
+        setTimeout(resolve, 6000);
+      });
+    }
+  } finally {
+    _subLock = false;
+  }
 }
 
-      if (currentChatUserId === otherUserId) {
-        const el = document.getElementById('chat-msgs-el');
-        if (el) { el.innerHTML = renderMsgs(allMsgs[key], CU.id); el.scrollTop = el.scrollHeight; }
-      }
-      updateChatSidebarPreviews();
-    })
-    .subscribe((status) => {
-      console.log(`[Chat] Channel status for ${conversationId}:`, status);
-    });
+async function handleIncomingRealtimeMessage(payload, otherUserId) {
+  const newMsg = payload.new;
+  if (!newMsg?.id) return;
 
-  isSubscribing = false; // ✅ Reset here — synchronously after channel is created
+  const key = [CU.id, otherUserId].sort().join('_');
+  const allMsgs = DB.messages();
+  if (!allMsgs[key]) allMsgs[key] = [];
+
+  // If already stored — just re-render (don't skip silently)
+  const alreadyStored = allMsgs[key].find(m => m.id === newMsg.id);
+  if (alreadyStored) {
+    if (currentChatUserId === otherUserId) {
+      const el = document.getElementById('chat-msgs-el');
+      if (el) {
+        el.innerHTML = renderMsgs(allMsgs[key], CU.id);
+        el.scrollTop = el.scrollHeight;
+      }
+    }
+    return;
+  }
+
+  renderedMessageIds.add(newMsg.id);
+
+  // Resolve S3 file URL if needed
+  let fileUrl = newMsg.file_url || null;
+  if (isS3Key(fileUrl)) {
+    try { fileUrl = await s3GetUrl(fileUrl); } catch (e) { fileUrl = null; }
+  }
+
+  // Save to local store
+  allMsgs[key].push({
+    id:       newMsg.id,
+    from:     newMsg.sender_id,
+    text:     newMsg.text,
+    file_url: fileUrl,
+    time:     new Date(newMsg.created_at).getTime()
+  });
+  DB.saveMessages(allMsgs);
+
+  // Update UI
+  if (currentChatUserId === otherUserId) {
+    const el = document.getElementById('chat-msgs-el');
+    if (el) {
+      el.innerHTML = renderMsgs(allMsgs[key], CU.id);
+      el.scrollTop = el.scrollHeight;
+    }
+  } else {
+    // User is in a different chat — show toast
+    const sender = DB.users().find(u => u.id === newMsg.sender_id);
+    if (newMsg.sender_id !== CU.id) {
+      showToast(`New message from ${sender?.name || 'someone'}`, 'info', '💬');
+    }
+  }
+
+  updateChatSidebarPreviews();
+}
+
+let _chatPollInterval = null;
+
+function startChatPolling() {
+  stopChatPolling(); // Clear any existing poll first
+
+  _chatPollInterval = setInterval(async () => {
+    if (!CU || !currentChatUserId || !supaClient) return;
+
+    try {
+      const convId = await getOrCreateConversation(CU.id, currentChatUserId);
+      if (!convId) return;
+
+      const key = [CU.id, currentChatUserId].sort().join('_');
+      const allMsgs = DB.messages();
+      const msgs = allMsgs[key] || [];
+
+      // Only fetch messages newer than what we already have
+      const lastTime = msgs.length
+        ? new Date(msgs[msgs.length - 1].time).toISOString()
+        : new Date(0).toISOString();
+
+      const { data: fresh } = await supaClient
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', convId)
+        .gt('created_at', lastTime)
+        .order('created_at', { ascending: true });
+
+      if (!fresh || fresh.length === 0) return;
+
+      let updated = false;
+      for (const m of fresh) {
+        if (msgs.find(x => x.id === m.id)) continue; // skip duplicates
+
+        let fileUrl = m.file_url || null;
+        if (isS3Key(fileUrl)) {
+          try { fileUrl = await s3GetUrl(fileUrl); } catch (e) { fileUrl = null; }
+        }
+
+        msgs.push({
+          id:       m.id,
+          from:     m.sender_id,
+          text:     m.text,
+          file_url: fileUrl,
+          time:     new Date(m.created_at).getTime()
+        });
+        renderedMessageIds.add(m.id);
+        updated = true;
+      }
+
+      if (updated) {
+        allMsgs[key] = msgs;
+        DB.saveMessages(allMsgs);
+        const el = document.getElementById('chat-msgs-el');
+        if (el) {
+          el.innerHTML = renderMsgs(msgs, CU.id);
+          el.scrollTop = el.scrollHeight;
+        }
+        updateChatSidebarPreviews();
+      }
+
+    } catch (e) { /* silent — polling is best-effort */ }
+
+  }, 4000); // polls every 4 seconds
+}
+
+function stopChatPolling() {
+  if (_chatPollInterval) {
+    clearInterval(_chatPollInterval);
+    _chatPollInterval = null;
+  }
 }
 
 async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName = null, overrideText = null) {
@@ -4002,30 +4133,30 @@ async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName =
 }
 
 async function switchChat(myId, otherId) {
-  // Update active conversation tracking
-   document.querySelector('.chat-list')?.classList.remove('open');
+  document.querySelector('.chat-list')?.classList.remove('open');
   const btn = document.getElementById('chatToggleBtn');
   if (btn) btn.innerText = 'Chats';
+
   currentChatUserId = otherId;
- 
+
   const key   = [myId, otherId].sort().join('_');
   const msgs  = DB.messages()[key] || [];
   const other = DB.users().find(u => u.id === otherId);
- 
-  // ── Update sidebar active state ──
+
+  // Highlight active chat in sidebar
   document.querySelectorAll('.cc-item').forEach(el => el.classList.remove('active'));
   const sidebarItem = document.querySelector(`.cc-item[data-uid="${otherId}"]`);
   if (sidebarItem) sidebarItem.classList.add('active');
- 
-  // ── Render chat area ──
+
+  // Render chat area
   const area = document.querySelector('.chat-area');
   if (area && other) {
     area.innerHTML = `
       <div class="ch-header">
         <div class="c-av" style="width:28px;height:28px;font-size:.7rem;">${other.avatar}</div>
-        <div class="online-dot" id="chat-online-dot"></div>
+        <div class="online-dot" id="chat-online-dot" style="background:var(--text-3);"></div>
         <span>${other.name}</span>
-        <span id="chat-status-text" style="font-size:.7rem;margin-left:4px;color:var(--text-3);">Connecting…</span>
+        <span id="chat-status-text" style="font-size:.7rem;margin-left:4px;color:var(--text-3);">–</span>
       </div>
       <div class="chat-msgs" id="chat-msgs-el">${renderMsgs(msgs, myId)}</div>
       <div class="chat-inp-bar">
@@ -4045,22 +4176,21 @@ async function switchChat(myId, otherId) {
         <button class="btn btn-primary btn-sm"
           onclick="sendMsg('${myId}','${otherId}')">Send</button>
       </div>`;
- 
-    // Scroll to bottom
+
     const msgEl = document.getElementById('chat-msgs-el');
     if (msgEl) msgEl.scrollTop = msgEl.scrollHeight;
   }
- 
-  // Update presence dot
+
   updateChatHeaderPresence();
- 
-  // ── Subscribe to this conversation's realtime channel ──
+
+  // Subscribe to realtime
   if (supaClient) {
     const conversationId = await getOrCreateConversation(myId, otherId);
-    if (conversationId) {
-      await subscribeToConversation(conversationId, otherId);
-    }
+    if (conversationId) await subscribeToConversation(conversationId, otherId);
   }
+
+  // Start polling as backup (in case realtime drops)
+  startChatPolling();
 }
 
 </script>
