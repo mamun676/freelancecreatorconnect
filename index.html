@@ -3924,6 +3924,7 @@ async function subscribeToConversation(conversationId, otherUserId) {
 async function handleIncomingRealtimeMessage(payload, otherUserId) {
   const newMsg = payload.new;
   if (!newMsg?.id) return;
+  if (newMsg.sender_id === CU.id) return;
 
   const key = [CU.id, otherUserId].sort().join('_');
   const allMsgs = DB.messages();
@@ -4108,6 +4109,7 @@ async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName =
       .insert({
         conversation_id: conversationId,
         sender_id:       myId,
+        receiver_id:     otherId,
         text,
         file_url:        overrideFileUrl
       })
