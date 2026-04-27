@@ -1611,7 +1611,8 @@ async function doSignupVerifyOTP() {
       resumeurl: '', photourl: '', experience: []
     };
 
-    const users = Array.isArray(DB.users) ? DB.users : [];
+    // CORRECT
+const users = DB.users();
 if (!users.find(x => x.id === u.id)) users.push({ ...u });
 DB.saveUsers(users);
 
@@ -2229,7 +2230,7 @@ async function wfContent() {
       const convId = await getOrCreateConversation(CU.id, flId);
       if (convId) await subscribeToConversation(convId, flId);
     }
-  },); return `
+  }); return `
     <h3>Chat with ${selFreelancerName || 'Editor'}</h3>
     ${buildChat(CU.id, flId || '')}
     ${!isCompleted ? `
@@ -3560,6 +3561,13 @@ function buildChat(myId, otherDefaultId) {
       : '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-3);font-size:.85rem;">No active conversations</div>'}
     </div>
   </div>`;
+}
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function renderMsgs(msgs, myId) {
