@@ -610,21 +610,23 @@ h1 em{
    h1{letter-spacing:-1px;}
   .stats-bar{gap:0;}
   .stat{padding:12px 12px;}
-    .chat-wrap{
-    display:flex;          /* ❌ block hatao */
-    flex-direction:column; /* ✅ add karo */
-    height: calc(100vh - var(--nav-h) - 20px);
-  }
-  .chat-area{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-  }
+  .chat-wrap{
+  display:flex;
+  flex-direction:column;
+  height: calc(100vh - var(--nav-h) - 84px); /* ✅ 84px = bottom nav height */
+}
+.chat-area{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-height:0;        /* ✅ KEY FIX — prevents overflow */
+}
 
-  .chat-msgs{
-    flex:1;
-    overflow-y:auto;
-  }
+.chat-msgs{
+  flex:1;
+  overflow-y:auto;
+  min-height:0;        /* ✅ KEY FIX — allows shrinking */
+}
 
 
   .chat-list{
@@ -661,6 +663,9 @@ h1 em{
 
 .chat-overlay.show{
   display: block;
+}
+.chat-inp-bar{
+  flex-shrink:0;       /* ✅ Prevents input bar from being compressed */
 }
   .cards-grid{grid-template-columns:1fr 1fr;}
   .f-grid{grid-template-columns:1fr 1fr;}
@@ -1825,10 +1830,14 @@ for (const m of messages) {          // forEach → for...of (async await ke liy
     }
 
     msgMap[key].push({
-      from: m.sender_id, text: m.text,
-      file_url: fileurl,                         // ← Ab signed URL hai
-      time: new Date(m.created_at).getTime()
-    });
+  id:       m.id,           // ✅ ADD THIS
+  from:     m.sender_id,
+  text:     m.text,
+  file_url: fileurl,
+  time:     new Date(m.created_at).getTime()
+});
+renderedMessageIds.add(m.id); // ✅ ADD THIS — prevents realtime re-adding same msg
+
   }
 }
 DB.saveMessages(msgMap);
@@ -3841,21 +3850,23 @@ async function getOrCreateConversation(userId1, userId2) {
 
 async function subscribeToConversation(conversationId, otherUserId) {
   if (!supaClient || !conversationId) return;
-  if (isSubscribing) return;  // ← ADD THIS
-  isSubscribing = true; 
- 
-  // ── 1. Cleanup: unsubscribe from previous conversation channel ──
+
+  // ✅ FIX 1: Already subscribed to exact same conversation — do nothing
+  if (currentConversationId === conversationId && currentChatChannel) return;
+
+  // ✅ FIX 2: Prevent concurrent calls
+  if (isSubscribing) return;
+  isSubscribing = true;
+
+  // ✅ FIX 3: Cleanup previous channel — do NOT reset isSubscribing here
   if (currentChatChannel) {
-    await supaClient.removeChannel(currentChatChannel);
+    try { await supaClient.removeChannel(currentChatChannel); } catch(e) {}
     currentChatChannel = null;
-    isSubscribing = false;
-    console.log('[Chat] Previous channel removed.');
+    // ← REMOVED: isSubscribing = false  (this was the main bug)
   }
- 
+
   currentConversationId = conversationId;
- 
-  // ── 2. Open new channel filtered by conversation_id ──
-  // The filter runs server-side — we never receive messages from other chats.
+
   currentChatChannel = supaClient
     .channel(`chat_convo_${conversationId}`)
     .on(
@@ -3864,31 +3875,25 @@ async function subscribeToConversation(conversationId, otherUserId) {
         event:  'INSERT',
         schema: 'public',
         table:  'messages',
-        filter: `conversation_id=eq.${conversationId}` // ← conversation_id ONLY
+        filter: `conversation_id=eq.${conversationId}`
       },
       async (payload) => {
         const newMsg = payload.new;
         if (!newMsg || !newMsg.id) return;
- 
-        // ── 3. Deduplication: skip messages we already rendered optimistically ──
-        if (renderedMessageIds.has(newMsg.id)) {
-          console.log('[Chat] Duplicate skipped:', newMsg.id);
-          return;
-        }
+
+        if (renderedMessageIds.has(newMsg.id)) return; // skip duplicates
         renderedMessageIds.add(newMsg.id);
- 
-        // ── 4. Resolve S3 key → signed URL if needed ──
+
         let fileUrl = newMsg.file_url || null;
         if (isS3Key(fileUrl)) {
           try { fileUrl = await s3GetUrl(fileUrl); }
           catch (e) { fileUrl = null; }
         }
- 
-        // ── 5. Push into in-memory store ──
+
         const key = [CU.id, otherUserId].sort().join('_');
         const allMsgs = DB.messages();
         if (!allMsgs[key]) allMsgs[key] = [];
- 
+
         allMsgs[key].push({
           id:       newMsg.id,
           from:     newMsg.sender_id,
@@ -3897,8 +3902,7 @@ async function subscribeToConversation(conversationId, otherUserId) {
           time:     new Date(newMsg.created_at).getTime()
         });
         DB.saveMessages(allMsgs);
- 
-        // ── 6. Instant UI update — only if this conversation is currently open ──
+
         if (currentChatUserId === otherUserId) {
           const el = document.getElementById('chat-msgs-el');
           if (el) {
@@ -3906,12 +3910,11 @@ async function subscribeToConversation(conversationId, otherUserId) {
             el.scrollTop = el.scrollHeight;
           }
         }
- 
         updateChatSidebarPreviews();
       }
     )
     .subscribe((status) => {
-      isSubscribing = false;
+      isSubscribing = false; // ✅ Only reset HERE, nowhere else
       console.log(`[Chat] Channel status for ${conversationId}:`, status);
     });
 }
