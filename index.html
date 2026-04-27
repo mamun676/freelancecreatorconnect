@@ -1162,7 +1162,9 @@ let newProjectFiles = []; // Track uploaded files before submitting
 let currentChatUserId = null; 
 let onlineUsers = new Set();
 let _signupOtpData = {};
-
+let currentChatChannel = null;
+let currentConversationId = null;
+const renderedMessageIds = new Set();
 
 function toggleChat(){
   const chatList = document.querySelector('.chat-list');
@@ -1808,23 +1810,23 @@ async function syncFromSupabase(u) {
         // ✅ NAYA CODE:
 const msgMap = {};
 for (const m of messages) {          // forEach → for...of (async await ke liye)
-  const c = convos.find(x => x.id === m.conversationid);
+  const c = convos.find(x => x.id === m.conversation_id);
   if (c) {
-    const otherId = c.user1id === u.id ? c.user2id : c.user1id;
+    const otherId = c.user1_id === u.id ? c.user2_id : c.user1_id;
     const key = [u.id, otherId].sort().join('_');
     if (!msgMap[key]) msgMap[key] = [];
 
     // S3 key → signed URL convert karo
-    let fileurl = m.fileurl || null;
+    let fileurl = m.file_url || null;
     if (isS3Key(fileurl)) {
       try { fileurl = await s3GetUrl(fileurl); }
       catch (e) { fileurl = null; }
     }
 
     msgMap[key].push({
-      from: m.senderid, text: m.text,
-      fileurl,                         // ← Ab signed URL hai
-      time: new Date(m.createdat).getTime()
+      from: m.sender_id, text: m.text,
+      file_url: fileurl,                         // ← Ab signed URL hai
+      time: new Date(m.created_at).getTime()
     });
   }
 }
@@ -1841,6 +1843,8 @@ function logout() {
     if (supaClient) {
       try { await supaClient.auth.signOut(); } catch(e) {}
     }
+    renderedMessageIds.clear();
+    window.realtimeInitialized = false;
     CU = null; activeManageProjectId = null; currentChatUserId = null;
     DB.logout();
     showScreen('screen-landing');
@@ -2202,13 +2206,21 @@ async function wfContent() {
   const flId = proj ? proj.freelancerId : null;
   const isCompleted = proj ? (proj.status === 'completed' || proj.paid) : false;
 
-  if (wfStep === 5) return `
+  if (wfStep === 5){
+     // Subscribe to realtime for this chat
+  setTimeout(async () => {
+    if (flId && supaClient) {
+      const convId = await getOrCreateConversation(CU.id, flId);
+      if (convId) await subscribeToConversation(convId, flId);
+    }
+  }, 200); return `
     <h3>Chat with ${selFreelancerName || 'Editor'}</h3>
     ${buildChat(CU.id, flId || '')}
     ${!isCompleted ? `
     <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn btn-primary" onclick="wfN()">Go To Workflow Step &rarr;</button>
     </div>` : ''}`;
+  }
 
   if (wfStep === 6) {
       if (proj && !proj.editedUploaded) {
@@ -2745,7 +2757,7 @@ function fPage(p, el) {
            }
            updateChatSidebarPreviews();
         } else {
-           renderC(p);
+           renderF(p);
         }
      });
   }
@@ -2768,7 +2780,7 @@ function fPageMobile(p, el) {
            }
            updateChatSidebarPreviews();
         } else {
-           renderC(p);
+           renderF(p);
         }
      });
   }
@@ -3515,8 +3527,9 @@ function buildChat(myId, otherDefaultId) {
       ${activeConvo ? `
         <div class="ch-header">
           <div class="c-av" style="width:28px;height:28px;font-size:.7rem;">${activeConvo.user.avatar}</div>
-          <div class="online-dot"></div>
-          <span>${activeConvo.user.name}</span>
+          <div class="online-dot" id="chat-online-dot"></div>
+<span>${activeConvo.user.name}</span>
+<span id="chat-status-text" style="font-size:.7rem;margin-left:4px;color:var(--text-3);">Connecting…</span>
         </div>
         <div class="chat-msgs" id="chat-msgs-el">${renderMsgs(activeConvo.msgs, myId)}</div>
         <div class="chat-inp-bar">
@@ -3654,36 +3667,6 @@ function renderMsgs(msgs, myId) {
   }).join('');
 }
 
-function switchChat(myId, otherId) {
-  currentChatUserId = otherId; 
-  const key   = [myId, otherId].sort().join('_');
-  const msgs  = DB.messages()[key] || [];
-  const other = DB.users().find(u => u.id === otherId);
-  document.querySelectorAll('.cc-item').forEach(el => el.classList.remove('active'));
-  if (event && event.currentTarget) event.currentTarget.classList.add('active');
-  const area = document.querySelector('.chat-area');
-  if (area && other) {
-    area.innerHTML = `
-      <div class="ch-header">
-        <div class="c-av" style="width:28px;height:28px;font-size:.7rem;">${other.avatar}</div>
-        <div class="online-dot"></div>
-        <span>${other.name}</span>
-      </div>
-      <div class="chat-msgs" id="chat-msgs-el">${renderMsgs(msgs, myId)}</div>
-      <div class="chat-inp-bar">
-        <label for="chat-upload-${otherId}" style="cursor:pointer; display:flex; align-items:center; margin-right:4px; color:var(--text-3); transition:color .2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-3)'">
-           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-        </label>
-        <input type="file" id="chat-upload-${otherId}" accept="video/*" style="display:none;" onchange="handleChatUpload(this, '${myId}', '${otherId}')"/>
-        <input class="chat-inp" id="chat-inp-el" placeholder="Type a message…"
-          onkeydown="if(event.key==='Enter')sendMsg('${myId}','${otherId}')"/>
-        <button class="btn btn-primary btn-sm" onclick="sendMsg('${myId}','${otherId}')">Send</button>
-      </div>`;
-    const el = document.getElementById('chat-msgs-el');
-    if (el) el.scrollTop = el.scrollHeight;
-  }
-}
-
 async function handleChatUpload(input, myId, otherId) {
   if (!input.files || !input.files.length) return;
   const file = input.files[0];
@@ -3715,58 +3698,6 @@ fileUrl = s3Key;   // ← S3 key, sendMsg handle karega
     showToast('Upload failed', 'err');
   }
   input.value = ''; 
-}
-
-async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName = null, overrideText = null) {
-  let text = '';
-  const inp = document.getElementById('chat-inp-el');
-  
-  if (overrideText) {
-    text = overrideText;
-  } else if (overrideFileUrl) {
-    text = 'Video: ' + overrideFileName;
-  } else {
-    if (!inp || !inp.value.trim()) return;
-    text = inp.value.trim(); 
-    inp.value = '';
-  }
-
-  const key = [myId, otherId].sort().join('_');
-  const allMsgs = DB.messages();
-  if (!allMsgs[key]) allMsgs[key] = [];
-  // ← YEH 3 LINES ADD KAR (pehle)
-let displayFileUrl = overrideFileUrl;
-if (isS3Key(overrideFileUrl)) {
-  try { displayFileUrl = await s3GetUrl(overrideFileUrl); }
-  catch (e) { displayFileUrl = null; }
-}
-  allMsgs[key].push({ from: myId, text: text, file_url: displayFileUrl, time: Date.now() });
-  DB.saveMessages(allMsgs);
-
-  const el = document.getElementById('chat-msgs-el');
-  if (el) { 
-      el.innerHTML = renderMsgs(allMsgs[key], myId); 
-      el.scrollTop = el.scrollHeight; 
-  }
-  updateChatSidebarPreviews();
-
-  if (supaClient) {
-    try {
-      const uid1 = [myId, otherId].sort()[0];
-      const uid2 = [myId, otherId].sort()[1];
-      let { data: convo } = await supaClient.from('conversations').select('id').eq('user1_id', uid1).eq('user2_id', uid2).maybeSingle();
-      if (!convo) {
-        const { data: newC } = await supaClient.from('conversations').insert({ user1_id: uid1, user2_id: uid2 }).select('id').single();
-        convo = newC;
-      }
-      if (convo) {
-        await supaClient.from('messages').insert({ conversation_id: convo.id, sender_id: myId, text, file_url: overrideFileUrl });
-      }
-    } catch(e) {
-       console.error(e);
-       showToast("Message failed to send.", "err");
-    }
-  }
 }
 
 /* ══════════════════════════════════════════════
@@ -3876,10 +3807,6 @@ s1.setAttribute('crossorigin','*');
 s0.parentNode.insertBefore(s1,s0);
 })();
 
-let currentChatChannel = null;
-let currentConversationId = null;
-const renderedMessageIds = new Set();
-
 async function getOrCreateConversation(userId1, userId2) {
   if (!supaClient) return null;
  
@@ -3913,6 +3840,8 @@ async function getOrCreateConversation(userId1, userId2) {
 
 async function subscribeToConversation(conversationId, otherUserId) {
   if (!supaClient || !conversationId) return;
+  if (isSubscribing) return;  // ← ADD THIS
+  isSubscribing = true; 
  
   // ── 1. Cleanup: unsubscribe from previous conversation channel ──
   if (currentChatChannel) {
@@ -3980,6 +3909,7 @@ async function subscribeToConversation(conversationId, otherUserId) {
       }
     )
     .subscribe((status) => {
+      isSubscribing = false;
       console.log(`[Chat] Channel status for ${conversationId}:`, status);
     });
 }
@@ -4066,6 +3996,9 @@ async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName =
 
 async function switchChat(myId, otherId) {
   // Update active conversation tracking
+   document.querySelector('.chat-list')?.classList.remove('open');
+  const btn = document.getElementById('chatToggleBtn');
+  if (btn) btn.innerText = 'Chats';
   currentChatUserId = otherId;
  
   const key   = [myId, otherId].sort().join('_');
