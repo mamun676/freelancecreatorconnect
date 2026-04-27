@@ -4052,11 +4052,11 @@ function stopChatPolling() {
 }
 
 async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName = null, overrideText = null) {
- 
+  
   // ── Resolve message text ──
   let text = '';
   const inp = document.getElementById('chat-inp-el');
- 
+  
   if (overrideText) {
     text = overrideText;
   } else if (overrideFileUrl) {
@@ -4064,24 +4064,24 @@ async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName =
   } else {
     if (!inp || !inp.value.trim()) return;
     text = inp.value.trim();
-    inp.value = ''; // clear input immediately for responsiveness
+    inp.value = '';
   }
- 
+
   // ── Resolve S3 key → signed URL for local display only ──
   let displayFileUrl = overrideFileUrl;
   if (isS3Key(overrideFileUrl)) {
     try { displayFileUrl = await s3GetUrl(overrideFileUrl); }
     catch (e) { displayFileUrl = null; }
   }
- 
-  // ── 1. Optimistic update: add to local store & render immediately ──
+
+  // ── 1. Optimistic update (with temp ID) ──
   const tempId = 'opt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
   const key = [myId, otherId].sort().join('_');
   const allMsgs = DB.messages();
   if (!allMsgs[key]) allMsgs[key] = [];
- 
+
   allMsgs[key].push({
-    id:       tempId,         // temporary — replaced conceptually by real DB id
+    id:       tempId,
     from:     myId,
     text,
     file_url: displayFileUrl,
@@ -4089,43 +4089,50 @@ async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName =
   });
   renderedMessageIds.add(tempId);
   DB.saveMessages(allMsgs);
- 
-  // Render right away — user sees their own message instantly
+
   const el = document.getElementById('chat-msgs-el');
   if (el) {
     el.innerHTML = renderMsgs(allMsgs[key], myId);
     el.scrollTop = el.scrollHeight;
   }
   updateChatSidebarPreviews();
- 
-  // ── 2. Persist to Supabase ──
+
   if (!supaClient) return;
- 
+
   try {
-    // Get or create conversation using conversation_id (never receiver_id)
     const conversationId = await getOrCreateConversation(myId, otherId);
     if (!conversationId) throw new Error('Could not resolve conversation ID');
- 
-    // Insert — store the raw S3 key in DB, NOT the signed URL
+
     const { data: inserted, error } = await supaClient
       .from('messages')
       .insert({
         conversation_id: conversationId,
         sender_id:       myId,
         text,
-        file_url:        overrideFileUrl   // raw S3 key goes to DB
+        file_url:        overrideFileUrl
       })
       .select('id')
       .single();
- 
+
     if (error) throw error;
-     if (inserted?.id) {
+
+    // ✅ KEY FIX: Replace tempId with real DB id
+    // This prevents realtime AND polling from adding it again
+    if (inserted?.id) {
+      const msgs = DB.messages();
+      const arr  = msgs[key] || [];
+      const tempMsg = arr.find(m => m.id === tempId);
+      if (tempMsg) {
+        tempMsg.id = inserted.id;  // swap temp id → real id
+        DB.saveMessages(msgs);
+      }
       renderedMessageIds.add(inserted.id);
     }
-   if (currentConversationId !== conversationId) {
+
+    if (currentConversationId !== conversationId) {
       await subscribeToConversation(conversationId, otherId);
     }
- 
+
   } catch (e) {
     console.error('[Chat] sendMsg failed:', e);
     showToast('Message failed to send.', 'err');
