@@ -1855,6 +1855,12 @@ function logout() {
     }
     renderedMessageIds.clear();
     window.realtimeInitialized = false;
+    if (currentChatChannel) {
+      try { supaClient.removeChannel(currentChatChannel); } catch(e) {}
+      currentChatChannel = null;
+    }
+    currentConversationId = null;
+    isSubscribing = false;
     CU = null; activeManageProjectId = null; currentChatUserId = null;
     DB.logout();
     showScreen('screen-landing');
@@ -2223,7 +2229,7 @@ async function wfContent() {
       const convId = await getOrCreateConversation(CU.id, flId);
       if (convId) await subscribeToConversation(convId, flId);
     }
-  }, 200); return `
+  },); return `
     <h3>Chat with ${selFreelancerName || 'Editor'}</h3>
     ${buildChat(CU.id, flId || '')}
     ${!isCompleted ? `
@@ -2616,7 +2622,7 @@ function cChat() {
       const convId = await getOrCreateConversation(CU.id, defaultOther);
       if (convId) await subscribeToConversation(convId, defaultOther);
     }
-  }, 200);
+  });
 
   return `<div class="page-head"><h2>Messages</h2><p>Chat with your editors</p></div>${buildChat(CU.id, defaultOther)}`;
 }
@@ -2816,7 +2822,7 @@ function renderF(p) {
         const convId = await getOrCreateConversation(CU.id, defaultOther);
         if (convId) await subscribeToConversation(convId, defaultOther);
       }
-    }, 200);
+    });
 
     m.innerHTML = `<div class="page-head"><h2>Messages</h2></div>${buildChat(CU.id, defaultOther)}`;
   }
@@ -3671,7 +3677,7 @@ function renderMsgs(msgs, myId) {
 
     return `
     <div style="display:flex; flex-direction:column; align-items:${flexAlign}; margin-bottom:8px; width:100%;">
-      <div class="msg ${isMine ? 'sent' : 'received'}">${m.text}</div>
+      <div class="msg ${isMine ? 'sent' : 'received'}">${escapeHtml(m.text)}</div>
       <div class="msg-time" style="${timeAlign}; width:100%; margin-top:2px;">${fmtTime(m.time)}</div>
     </div>`;
   }).join('');
@@ -3850,73 +3856,60 @@ async function getOrCreateConversation(userId1, userId2) {
 
 async function subscribeToConversation(conversationId, otherUserId) {
   if (!supaClient || !conversationId) return;
-
-  // ✅ FIX 1: Already subscribed to exact same conversation — do nothing
   if (currentConversationId === conversationId && currentChatChannel) return;
-
-  // ✅ FIX 2: Prevent concurrent calls
   if (isSubscribing) return;
   isSubscribing = true;
 
-  // ✅ FIX 3: Cleanup previous channel — do NOT reset isSubscribing here
   if (currentChatChannel) {
     try { await supaClient.removeChannel(currentChatChannel); } catch(e) {}
     currentChatChannel = null;
-    // ← REMOVED: isSubscribing = false  (this was the main bug)
   }
 
   currentConversationId = conversationId;
 
   currentChatChannel = supaClient
     .channel(`chat_convo_${conversationId}`)
-    .on(
-      'postgres_changes',
-      {
-        event:  'INSERT',
-        schema: 'public',
-        table:  'messages',
-        filter: `conversation_id=eq.${conversationId}`
-      },
-      async (payload) => {
-        const newMsg = payload.new;
-        if (!newMsg || !newMsg.id) return;
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public',
+      table: 'messages',
+      filter: `conversation_id=eq.${conversationId}`
+    }, async (payload) => {
+      const newMsg = payload.new;
+      if (!newMsg || !newMsg.id) return;
+      if (renderedMessageIds.has(newMsg.id)) return;
+      renderedMessageIds.add(newMsg.id);
 
-        if (renderedMessageIds.has(newMsg.id)) return; // skip duplicates
-        renderedMessageIds.add(newMsg.id);
-
-        let fileUrl = newMsg.file_url || null;
-        if (isS3Key(fileUrl)) {
-          try { fileUrl = await s3GetUrl(fileUrl); }
-          catch (e) { fileUrl = null; }
-        }
-
-        const key = [CU.id, otherUserId].sort().join('_');
-        const allMsgs = DB.messages();
-        if (!allMsgs[key]) allMsgs[key] = [];
-
-        allMsgs[key].push({
-          id:       newMsg.id,
-          from:     newMsg.sender_id,
-          text:     newMsg.text,
-          file_url: fileUrl,
-          time:     new Date(newMsg.created_at).getTime()
-        });
-        DB.saveMessages(allMsgs);
-
-        if (currentChatUserId === otherUserId) {
-          const el = document.getElementById('chat-msgs-el');
-          if (el) {
-            el.innerHTML = renderMsgs(allMsgs[key], CU.id);
-            el.scrollTop = el.scrollHeight;
-          }
-        }
-        updateChatSidebarPreviews();
+      let fileUrl = newMsg.file_url || null;
+      if (isS3Key(fileUrl)) {
+        try { fileUrl = await s3GetUrl(fileUrl); } catch(e) { fileUrl = null; }
       }
-    )
+
+      const key = [CU.id, otherUserId].sort().join('_');
+      const allMsgs = DB.messages();
+      if (!allMsgs[key]) allMsgs[key] = [];
+      allMsgs[key].push({
+        id: newMsg.id, from: newMsg.sender_id,
+        text: newMsg.text, file_url: fileUrl,
+        time: new Date(newMsg.created_at).getTime()
+      });
+      DB.saveMessages(allMsgs);
+
+      if (currentChatUserId !== otherUserId) {
+  const senderUser = DB.users().find(u => u.id === otherUserId);
+  showToast(`New message from ${senderUser?.name || 'someone'}`, 'info', '💬');
+}
+
+      if (currentChatUserId === otherUserId) {
+        const el = document.getElementById('chat-msgs-el');
+        if (el) { el.innerHTML = renderMsgs(allMsgs[key], CU.id); el.scrollTop = el.scrollHeight; }
+      }
+      updateChatSidebarPreviews();
+    })
     .subscribe((status) => {
-      isSubscribing = false; // ✅ Only reset HERE, nowhere else
       console.log(`[Chat] Channel status for ${conversationId}:`, status);
     });
+
+  isSubscribing = false; // ✅ Reset here — synchronously after channel is created
 }
 
 async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName = null, overrideText = null) {
@@ -3955,6 +3948,7 @@ async function sendMsg(myId, otherId, overrideFileUrl = null, overrideFileName =
     file_url: displayFileUrl,
     time:     Date.now()
   });
+  renderedMessageIds.add(tempId);
   DB.saveMessages(allMsgs);
  
   // Render right away — user sees their own message instantly
