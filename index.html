@@ -2301,7 +2301,6 @@ async function wfContent() {
   }
 
 if (wfStep === 7) {
-    // Project aur uski details dynamically fetch kar rahe hain
     const p = DB.projects().find(x => x.id === activeManageProjectId);
     const budget = p ? p.budget : 0;
     const fee = Math.round(budget * 0.03);
@@ -2309,9 +2308,27 @@ if (wfStep === 7) {
     const eName = selFreelancerName || (p ? DB.users().find(u => u.id === p.freelancerId)?.name : 'Editor');
     const cType = selContent || (p ? p.contentType : 'Video');
 
+    const showPayment = p && p.editedUploaded && !p.paid;
+    const showRating  = p && p.paid && (!p.rating || p.rating === 0);
+    const showDone    = p && p.paid && p.rating > 0;
+
+    if (showDone) {
+      return `
+      <h3>Project Complete</h3>
+      <div class="alert alert-s" style="margin-bottom:16px;">
+        ✅ Payment done and rating submitted. This project is fully complete!
+      </div>
+      <div class="det-card">
+        <div class="info-row"><span class="key">Editor</span><span>${eName}</span></div>
+        <div class="info-row"><span class="key">Your Rating</span><span>${'★'.repeat(p.rating)}${'☆'.repeat(5 - p.rating)}</span></div>
+        ${p.review ? `<div class="info-row"><span class="key">Your Review</span><span style="font-style:italic;">"${p.review}"</span></div>` : ''}
+      </div>`;
+    }
+
     return `
-    <h3>Complete Payment &amp; Rate</h3>
+    <h3>${showPayment ? 'Complete Payment' : ''}${showPayment && showRating ? ' &amp; ' : ''}${showRating ? 'Rate Editor' : ''}</h3>
     <div class="two-col">
+      ${showPayment ? `
       <div>
         <div class="section-title">Payment Summary</div>
         <div class="det-card" style="margin-bottom:14px;">
@@ -2325,7 +2342,8 @@ if (wfStep === 7) {
           <select><option>UPI</option><option>Net Banking</option><option>Credit/Debit Card</option><option>Wallet</option></select>
         </div>
         <button class="btn btn-green-btn full-btn" onclick="completePayment()">Pay Now &rarr;</button>
-      </div>
+      </div>` : ''}
+      ${showRating ? `
       <div>
         <div class="section-title">Rate ${eName}</div>
         <div class="det-card">
@@ -2334,7 +2352,11 @@ if (wfStep === 7) {
           <div class="fg" style="margin-top:10px;"><label>Write a Review</label><input id="review-text" placeholder="Amazing work, delivered on time!"/></div>
           <button class="btn btn-primary full-btn" onclick="submitReview()">Submit Review</button>
         </div>
-      </div>
+      </div>` : ''}
+      ${!showPayment && !showRating && !showDone ? `
+      <div style="grid-column:1/-1;">
+        <div class="alert alert-i">Waiting for the editor to upload the final video before payment.</div>
+      </div>` : ''}
     </div>`;
   }
 
@@ -2411,17 +2433,20 @@ async function completePayment() {
               .update({ paid: true, status: 'completed' })
               .eq('id', p.id);
           }
-
+          
           const projs = DB.projects(), proj = projs.find(x => x.id === p.id);
           if (proj) { proj.paid = true; proj.status = 'completed'; DB.saveProjects(projs); }
 
           await sendMsg(CU.id, p.freelancerId, null, null,
             `✅ Payment of ₹${fmt(total)} done! Project completed. Thanks for the great work!`);
 
-          showToast('✅ Payment Successful! Video unlock ho gaya.', 'ok', '');
+          showToast('✅ Payment Successful! Now rate your editor.', 'ok', '');
           activeManageProjectId = p.id;
           wfStep = 7;
-          renderC('new');   // Payment step re-render — ab download button dikhega
+          // Re-sync so p.paid is fresh before re-render
+          await syncFromSupabase(CU);
+          renderC('new');
+
         } catch(e) {
           showToast('Payment hua par DB update failed. Support se contact karo.', 'warn', '');
         }
@@ -2699,11 +2724,12 @@ async function submitReview() {
     DB.saveProjects(projs);
     if (supaClient) {
       const { error } = await supaClient.from('projects').update({ rating: rating, review: review }).eq('id', pid);
-      if (error) { showToast('Review saved locally but DB sync failed: ' + error.message, 'warn', ''); }
-      else { showToast(`Review submitted! ${rating} stars`, 'ok', ''); }
-    } else {
-      showToast(`Review submitted! ${rating} stars`, 'ok', '');
+      if (error) { showToast('Review saved locally but DB sync failed: ' + error.message, 'warn', ''); return; }
     }
+    showToast(`⭐ Review submitted! ${rating} stars`, 'ok', '');
+    // Re-render so rating UI disappears and "Done" state shows
+    wfStep = 7;
+    renderC('new');
   }
 }
 
