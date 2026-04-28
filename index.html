@@ -2097,9 +2097,11 @@ ifsc_code: p.ifsc_code || ''
 
     const { data: attachments } = await supaClient.from('project_attachments').select('*');
     if (attachments && attachments.length) {
-      const mappedAtts = attachments.map(a => ({
-          id: a.id, projectId: a.project_id, name: a.file_name, type: a.file_type, size: a.file_size, duration: a.duration
-      }));
+     const mappedAtts = attachments.map(a => ({
+    id: a.id, projectId: a.project_id, name: a.file_name,
+    file_url: a.file_url,   // ← THIS WAS MISSING
+    type: a.file_type, size: a.file_size, duration: a.duration
+}));
       DB.saveAttachments(mappedAtts);
     }
 
@@ -2255,10 +2257,9 @@ function manageProject(pid) {
   
   if (p.status === 'open') { showToast('Waiting for freelancers to accept...', 'info'); return; }
   
-  if (p.status === 'ongoing' && !p.editedUploaded) wfStep = 5; // Chat (raw is auto-shared)
-  else if (p.status === 'ongoing' && p.editedUploaded) wfStep = 6; // Review
-  else if (p.status === 'completed' && !p.paid) wfStep = 7; // Pay
-  else wfStep = 7; 
+ if (p.status === 'ongoing' && !p.editedUploaded) wfStep = 5;
+else if (p.status === 'ongoing' && p.editedUploaded && !p.paid) wfStep = 7;
+else wfStep = 7;
   
   cPage('new', document.querySelector('[data-page="new"]'));
 }
@@ -3279,25 +3280,53 @@ function fBrowse() {
 }
 
 async function acceptProject(id) {
-  if (supaClient) {
-      const { data, error } = await supaClient.from('projects')
-        .update({ freelancer_id: CU.id, status: 'ongoing' })
-        .eq('id', id).is('freelancer_id', null).select();
+  let creatorId = null;
 
-      if (error || !data || data.length === 0) {
-        showToast('Project already taken by another freelancer!', 'err', '');
-        renderF('browse');
-        return;
-      }
+  if (supaClient) {
+    const { data, error } = await supaClient.from('projects')
+      .update({ freelancer_id: CU.id, status: 'ongoing' })
+      .eq('id', id).is('freelancer_id', null).select();
+
+    if (error || !data || data.length === 0) {
+      showToast('Project already taken by another freelancer!', 'err', '');
+      renderF('browse');
+      return;
+    }
+    creatorId = data[0].creator_id;
   }
-  
+
   const projs = DB.projects(), p = projs.find(x => x.id === id);
-  if (p) { 
-      if (p.freelancerId) { showToast('Project already taken!', 'err', ''); renderF('browse'); return; }
-      p.freelancerId = CU.id; p.status = 'ongoing'; DB.saveProjects(projs); 
+  if (p) {
+    if (p.freelancerId) { showToast('Project already taken!', 'err', ''); renderF('browse'); return; }
+    p.freelancerId = CU.id; p.status = 'ongoing'; DB.saveProjects(projs);
+    if (!creatorId) creatorId = p.creatorId;
   }
-  
-  showToast('Project accepted! Chat activated.', 'ok', ''); 
+
+  if (supaClient && creatorId) {
+    try {
+      const { data: atts } = await supaClient
+        .from('project_attachments')
+        .select('*')
+        .eq('project_id', id);
+
+      if (atts && atts.length > 0) {
+        for (const att of atts) {
+          if (att.file_url) {
+            await sendMsg(CU.id, creatorId, att.file_url, att.file_name,
+              `📁 Project File (uploaded by creator): ${att.file_name}`);
+          }
+        }
+        showToast(`Accepted! ${atts.length} raw file(s) sent to chat.`, 'ok', '🎉');
+      } else {
+        showToast('Project accepted! Chat activated.', 'ok', '');
+      }
+    } catch (e) {
+      showToast('Project accepted! Chat activated.', 'ok', '');
+    }
+  } else {
+    showToast('Project accepted! Chat activated.', 'ok', '');
+  }
+
   renderF('ongoing');
 }
 
@@ -4222,14 +4251,22 @@ function triggerApproveAndPay(projectId) {
         showToast('Project not found.', 'err', '');
         return;
     }
-    showModal('Proceed to Payment', 'Are you sure you want to approve this video and proceed to the payment screen?', () => {
+    showModal('Proceed to Payment', 'Are you sure you want to approve this video and proceed to the payment screen?', async () => {
+        const projs = DB.projects();
+        const p = projs.find(x => x.id === projectId);
+        if (p) { p.editedUploaded = true; DB.saveProjects(projs); }
+
+        // ✅ DB mein bhi update karo taaki sync ke baad bhi rahe
+        if (supaClient) {
+            await supaClient.from('projects').update({ edited_uploaded: true }).eq('id', projectId);
+        }
+
         activeManageProjectId = projectId;
         wfStep = 7;
         cPage('new', document.querySelector('[data-page="new"]'));
     });
     document.getElementById('modal-confirm').textContent = 'Proceed';
 }
-
 /* ══════════════════════════════════════════════
    SHARED HELPERS
 ══════════════════════════════════════════════ */
