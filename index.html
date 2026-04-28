@@ -690,6 +690,236 @@ h1 em{
   .how-cards{flex-direction:column;align-items:center;}
   .how-card{width:100%;max-width:300px;}
 }
+/* ── MEET THE TEAM MODAL ── */
+
+/* Button hover upgrade */
+#meet-team-btn {
+  transition: transform .22s cubic-bezier(.25,.46,.45,.94), box-shadow .22s ease, border-color .22s ease !important;
+}
+#meet-team-btn:hover {
+  transform: scale(1.04) translateY(-2px) !important;
+  box-shadow: 0 8px 28px rgba(224,92,42,.18), var(--shadow-md) !important;
+  border-color: rgba(224,92,42,.35) !important;
+}
+
+/* Overlay — full viewport, proper stacking */
+#team-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#team-modal-overlay.team-open {
+  display: flex;
+}
+
+/* Modal box */
+#team-modal-box {
+  background: var(--surface);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 920px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 40px 36px 36px;
+  position: relative;
+  box-shadow: var(--shadow-xl);
+  animation: teamModalIn .28s cubic-bezier(.25,.46,.45,.94) both;
+}
+@keyframes teamModalIn {
+  from { opacity: 0; transform: scale(.95) translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Close button */
+#team-modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border-strong);
+  background: var(--bg2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-2);
+  transition: all .2s;
+  flex-shrink: 0;
+}
+#team-modal-close:hover {
+  background: var(--surface2);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  transform: scale(1.08);
+}
+
+/* Header */
+#team-modal-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+#team-modal-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -.5px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+#team-modal-sub {
+  font-size: .9rem;
+  color: var(--text-3);
+  margin-bottom: 14px;
+}
+#team-modal-desc {
+  font-size: .83rem;
+  color: var(--text-2);
+  line-height: 1.75;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Cards grid */
+#team-modal-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+/* Individual card */
+.team-card {
+  background: var(--bg2);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 24px 18px 20px;
+  text-align: center;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  box-shadow: var(--shadow-xs);
+}
+.team-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(224,92,42,.10), var(--shadow-md);
+  border-color: rgba(224,92,42,.22);
+}
+.team-card-img-wrap {
+  width: 84px; height: 84px;
+  border-radius: 50%;
+  margin: 0 auto 14px;
+  overflow: hidden;
+  border: 2px solid var(--glass-border-strong);
+  background: var(--surface);
+}
+.team-card-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.team-card-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  letter-spacing: -.1px;
+}
+.team-card-role {
+  font-size: .74rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 9px;
+}
+.team-card-desc {
+  font-size: .76rem;
+  color: var(--text-3);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.team-card-links {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.team-card-link {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border-strong);
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-3);
+  text-decoration: none;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.team-card-link svg { width: 14px; height: 14px; }
+.team-card-link:hover {
+  color: var(--accent);
+  border-color: rgba(224,92,42,.3);
+  background: var(--accent-soft);
+  transform: scale(1.1);
+}
+
+/* ── TABLET: 2 columns ── */
+@media (max-width: 860px) {
+  #team-modal-cards {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+/* ── MOBILE: Bottom Sheet ── */
+@media (max-width: 768px) {
+  #team-modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+  #team-modal-box {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    max-height: 90vh;
+    padding: 28px 16px 40px;
+    animation: teamSheetUp .3s cubic-bezier(.25,.46,.45,.94) both;
+  }
+  @keyframes teamSheetUp {
+    from { opacity: 0; transform: translateY(60px); }
+    to   { opacity: 1; transform: none; }
+  }
+  #team-modal-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  #team-modal-title {
+    font-size: 1.3rem;
+  }
+  #team-modal-desc {
+    font-size: .8rem;
+  }
+}
+.page-content {
+  position: relative;
+  z-index: 1;
+  transition: filter 0.28s ease;
+}
+
+.page-content.blur-active {
+  filter: blur(20px) brightness(0.16);
+  pointer-events: none;
+  user-select: none;
+}
+
+#team-modal-overlay {
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+}
+
 </style>
 </head>
 <body>
@@ -707,6 +937,7 @@ h1 em{
       <button class="btn btn-primary btn-sm" onclick="goAuth('signup')">Get Started</button>
     </div>
   </nav>
+  <div class="page-content"></div>
   <div class="hero">
     <div class="hero-glow"></div>
     <h1>Connect <em>Creators</em><br/>with Pro Editors</h1>
@@ -799,6 +1030,13 @@ h1 em{
       </div>
     </div>
     <section class="follow-section">
+      <!-- MEET THE TEAM CTA -->
+       <div style="text-align:center;margin:32px 0 40px;">
+      <button class="btn btn-ghost" id="meet-team-btn" onclick="openTeamModal()" style="font-size:.92rem;padding:12px 28px;border-radius:999px;border-color:rgba(0,0,0,.12);">
+        Meet the Team Behind Aalynex &rarr;
+      </button>
+    </div>
+
       <div class="follow-title">Follow Us On</div>
       <div class="social-links">
         <a href="https://youtube.com/@aalynex?si=tRi-d7DgXJtOYoTX" target="_blank" class="social-btn">
@@ -821,6 +1059,71 @@ h1 em{
       <div class="follow-bottom">Trusted By Creators Worldwide</div>
     </section>
   </section>
+</div>
+
+<div id="team-modal-overlay" onclick="closeTeamModal(event)">
+    <div id="team-modal-box" role="dialog" aria-modal="true" aria-labelledby="team-modal-heading">
+      <button onclick="closeTeamModal()" id="team-modal-close" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div id="team-modal-header">
+        <div id="team-modal-title" id="team-modal-heading">Meet the Developers</div>
+        <div id="team-modal-sub">Built by developers who understand creators.</div>
+        <p id="team-modal-desc">Aalynex was born from a real problem — creators struggling to find reliable, skilled editors, and editors struggling to find consistent work. Our small but passionate team set out to build a platform that bridges that gap with transparency, speed, and trust at its core. Every feature you see was thoughtfully crafted with both sides of the workflow in mind.</p>
+      </div>
+      <div id="team-modal-cards">
+        <div class="team-card">
+          <div class="team-card-img-wrap">
+            <img src="https://api.dicebear.com/7.x/notionists/svg?seed=dev1&backgroundColor=ffd5dc" alt="Developer 1" class="team-card-img"/>
+          </div>
+          <div class="team-card-name">Aryan Sharma</div>
+          <div class="team-card-role">Full-Stack Developer</div>
+          <div class="team-card-desc">Architected the core platform, real-time chat system, and all Supabase integrations.</div>
+          <div class="team-card-links">
+            <a href="#" target="_blank" class="team-card-link" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </a>
+            <a href="#" target="_blank" class="team-card-link" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-card-img-wrap">
+            <img src="https://api.dicebear.com/7.x/notionists/svg?seed=dev2&backgroundColor=c0e8f0" alt="Developer 2" class="team-card-img"/>
+          </div>
+          <div class="team-card-name">Priya Mehta</div>
+          <div class="team-card-role">UI/UX Designer & Frontend Dev</div>
+          <div class="team-card-desc">Designed the product experience, component system, and the entire mobile-first UI.</div>
+          <div class="team-card-links">
+            <a href="#" target="_blank" class="team-card-link" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </a>
+            <a href="#" target="_blank" class="team-card-link" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="team-card">
+          <div class="team-card-img-wrap">
+            <img src="https://api.dicebear.com/7.x/notionists/svg?seed=dev3&backgroundColor=d4f0c0" alt="Developer 3" class="team-card-img"/>
+          </div>
+          <div class="team-card-name">Rohan Das</div>
+          <div class="team-card-role">Backend & Payments Engineer</div>
+          <div class="team-card-desc">Built the escrow payment flow, S3 file pipeline, and real-time notification system.</div>
+          <div class="team-card-links">
+            <a href="#" target="_blank" class="team-card-link" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </a>
+            <a href="#" target="_blank" class="team-card-link" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div id="screen-auth" class="screen">
@@ -2163,7 +2466,7 @@ async function wfContent() {
     <h3>Project Details</h3>
     <div class="fg"><label>Project Title *</label><input id="wf-title" value="${newProjectDraft.title || ''}" placeholder="e.g. YouTube Vlog Edit – Travel Series EP5"/></div>
     <div class="fg"><label>Description</label><textarea id="wf-desc" placeholder="Describe what you need edited…">${newProjectDraft.desc || ''}</textarea></div>
-    <div class="fg"><label>Budget (₹) *</label><input id="wf-budget" type="number" value="${newProjectDraft.budget || ''}" placeholder="5000" min="100"/></div>
+    <div class="fg"><label>Budget (₹) *</label><input id="wf-budget" type="number" value="${newProjectDraft.budget || ''}" placeholder="200" min="1"/></div>
     <button class="btn btn-primary" onclick="wfN()">Next &rarr;</button>`;
 
   if (wfStep === 1) return `
@@ -2488,7 +2791,7 @@ function wfN() {
     const b = document.getElementById('wf-budget')?.value;
     const desc = document.getElementById('wf-desc')?.value || '';
     if(!t){ showToast('Please enter a project title','err',''); return; } 
-    if(!b||b<100){ showToast('Please enter a valid budget (min ₹100)','err',''); return; } 
+    if(!b||b<1){ showToast('Please enter a valid budget','err',''); return; } 
     
     newProjectDraft.title = t;
     newProjectDraft.budget = parseInt(b);
@@ -4386,7 +4689,47 @@ async function switchChat(myId, otherId) {
   // Start polling as backup (in case realtime drops)
   startChatPolling();
 }
+/* ── MEET THE TEAM MODAL FUNCTIONS ── */
+function openTeamModal() {
+  const overlay = document.getElementById('team-modal-overlay');
+  const pageContent = document.getElementById('screen-landing');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      overlay.classList.add('team-open');
+      if (pageContent) pageContent.classList.add('blur-active');
+    });
+  });
+  document.body.style.overflow = 'hidden';
+  document.addEventListener('keydown', _teamEscHandler);
+}
 
+function closeTeamModal(e) {
+  if (e && e.type === 'click') {
+    const box = document.getElementById('team-modal-box');
+    const closeBtn = document.getElementById('team-modal-close');
+    if (box && box.contains(e.target) && !closeBtn.contains(e.target)) return;
+  }
+  const overlay = document.getElementById('team-modal-overlay');
+  const pageContent = document.getElementById('screen-landing');
+  overlay.classList.remove('team-open');
+  if (pageContent) pageContent.classList.remove('blur-active');
+  setTimeout(() => { overlay.style.display = 'none'; }, 280);
+  document.body.style.overflow = '';
+  document.removeEventListener('keydown', _teamEscHandler);
+}
+
+function _teamEscHandler(e) {
+  if (e.key === 'Escape') {
+    const overlay = document.getElementById('team-modal-overlay');
+    const pageContent = document.getElementById('screen-landing');
+    overlay.classList.remove('team-open');
+    if (pageContent) pageContent.classList.remove('blur-active');
+    setTimeout(() => { overlay.style.display = 'none'; }, 280);
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', _teamEscHandler);
+  }
+}
 </script>
 <!--End of Tawk.to Script-->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
