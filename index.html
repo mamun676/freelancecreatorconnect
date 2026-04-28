@@ -1457,7 +1457,12 @@ async function doLogin() {
       portfoliolinks: profile.portfoliolinks || [],
       resumeurl: profile.resumeurl || '',
       photourl: profile.photourl || '',
-      experience: profile.experience || []
+      experience: profile.experience || [],
+// NEW: Feature 1
+upiId: profile.upi_id || '',
+bankAccountName: profile.bank_account_name || '',
+bankAccountNumber: profile.bank_account_number || '',
+ifscCode: profile.ifsc_code || ''
     };
 
     setBtn('login-btn', false);
@@ -1686,6 +1691,8 @@ async function loginSuccess(u) {
   if (u.role === 'freelancer') {
     await loadFreelancerProfile();
     renderF('home');
+    // NEW: Feature 2
+    checkFProfileCompletion();
   } else {
     await loadFreelancerProfile();
     updateAvatarsEverywhere();
@@ -1803,7 +1810,12 @@ async function syncFromSupabase(u) {
           skills: p.skills || [],
           portfolio_links: p.portfolio_links || {},
           resume_url: p.resume_url || '',
-          photo_url: p.photo_url || ''
+          photo_url: p.photo_url || '',
+// NEW: Feature 1
+upi_id: p.upi_id || '',
+bank_account_name: p.bank_account_name || '',
+bank_account_number: p.bank_account_number || '',
+ifsc_code: p.ifsc_code || ''
         };
         if (!exists) localUsers.push(mapped); else Object.assign(exists, mapped);
       });
@@ -1971,8 +1983,9 @@ function renderC(p) {
   if (p !== 'chat') {
      m.classList.remove('fade-in'); void m.offsetWidth; m.classList.add('fade-in');
   }
+  // NEW: Feature 2
+  checkFProfileCompletion();
 }
-
 function manageProject(pid) {
   const p = DB.projects().find(x => x.id === pid);
   if(!p) return;
@@ -3365,6 +3378,19 @@ function fProfile() {
         `}
       </div>
     </div>
+  </div>
+
+  <div class="det-card" style="margin-top:14px;">
+    <h4>Payment Details</h4>
+    <div class="fg">
+      <label>UPI ID</label>
+      <input id="prof-upi" placeholder="yourname@upi" value="${u.upiId || ''}"/>
+      <div style="font-size:.7rem;color:var(--text-3);margin-top:4px;">Your payment details are private and only used for payouts.</div>
+    </div>
+    <div class="fg"><label>Account Holder Name</label><input id="prof-bank-name" placeholder="Full name as on bank account" value="${u.bankAccountName || ''}"/></div>
+    <div class="fg"><label>Bank Account Number</label><input id="prof-bank-acc" placeholder="Enter account number" value="${u.bankAccountNumber || ''}"/></div>
+    <div class="fg"><label>IFSC Code</label><input id="prof-ifsc" placeholder="e.g. SBIN0001234" maxlength="11" value="${u.ifscCode || ''}"/></div>
+    <button class="btn btn-primary btn-sm" id="save-payment-btn" onclick="savePaymentDetails()">Save Payment Details</button>
   </div>`;
 }
 function saveFProfile() {
@@ -3424,9 +3450,14 @@ async function loadFreelancerProfile() {
       CU.skills = data.skills || [];
       CU.portfolio_links = data.portfolio_links || {};
       CU.resume_url = data.resume_url || '';
-      CU.photo_url = data.photo_url || '';
-      CU.experience = data.experience || [];
-      DB.setCurrentUser(CU);
+     CU.photo_url = data.photo_url || '';
+CU.experience = data.experience || [];
+// NEW: Feature 1
+CU.upiId = data.upi_id || '';
+CU.bankAccountName = data.bank_account_name || '';
+CU.bankAccountNumber = data.bank_account_number || '';
+CU.ifscCode = data.ifsc_code || '';
+DB.setCurrentUser(CU);
       updateAvatarsEverywhere();
     }
   } catch (e) {
@@ -3509,7 +3540,72 @@ async function removeSkill(s) {
   showToast('Skill removed', 'ok', '');
   renderF('profile');
 }
+// NEW: Feature 1
+async function savePaymentDetails() {
+  const upiId = document.getElementById('prof-upi')?.value?.trim() || '';
+  const bankName = document.getElementById('prof-bank-name')?.value?.trim() || '';
+  const bankAcc = document.getElementById('prof-bank-acc')?.value?.trim() || '';
+  const ifsc = document.getElementById('prof-ifsc')?.value?.trim().toUpperCase() || '';
 
+  CU.upiId = upiId;
+  CU.bankAccountName = bankName;
+  CU.bankAccountNumber = bankAcc;
+  CU.ifscCode = ifsc;
+  DB.setCurrentUser(CU);
+
+  if (supaClient) {
+    const { error } = await supaClient.from('profiles').update({
+      upi_id: upiId,
+      bank_account_name: bankName,
+      bank_account_number: bankAcc,
+      ifsc_code: ifsc
+    }).eq('id', CU.id);
+    if (error) { showToast('Failed to save. Try again.', 'err', ''); return; }
+  }
+  showToast('Payment details saved!', 'ok', '');
+}
+// NEW: Feature 2
+function checkFProfileCompletion() {
+  if (!CU || CU.role !== 'freelancer') return;
+
+  const checks = [
+    !!(CU.name && CU.name.trim()),
+    !!(CU.phone && CU.phone.trim()),
+    !!(CU.profession && CU.profession.trim()),
+    Array.isArray(CU.skills) && CU.skills.length > 0,
+    CU.portfolio_links && Object.values(CU.portfolio_links).some(v => v && v.trim()),
+    Array.isArray(CU.experience) && CU.experience.length > 0,
+    !!(CU.upiId && CU.upiId.trim()),
+    !!(CU.photo_url && CU.photo_url.trim())
+  ];
+
+  const filledCount = checks.filter(Boolean).length;
+  const total = checks.length;
+  const percent = Math.round((filledCount / total) * 100);
+  const remaining = total - filledCount;
+
+  const existingBanner = document.getElementById('fprofile-completion-banner');
+
+  if (percent >= 100) {
+    if (existingBanner) existingBanner.remove();
+    return;
+  }
+
+  const bannerHtml = `
+    <div id="fprofile-completion-banner" style="background:linear-gradient(90deg,rgba(224,92,42,.09),rgba(124,58,237,.07));padding:9px 20px;display:flex;align-items:center;justify-content:space-between;font-size:0.82rem;width:100%;gap:12px;flex-shrink:0;">
+      <span>📝 Complete your profile — <strong>${percent}%</strong> done, <strong>${remaining}</strong> item(s) remaining</span>
+      <button class="btn btn-primary btn-sm" onclick="fPage('profile',null)" style="white-space:nowrap;flex-shrink:0;">Complete Profile →</button>
+    </div>`;
+
+  const fMain = document.getElementById('f-main');
+  if (!fMain) return;
+
+  if (existingBanner) {
+    existingBanner.outerHTML = bannerHtml;
+  } else {
+    fMain.insertAdjacentHTML('afterbegin', bannerHtml);
+  }
+}
 async function savePortfolioLinks() {
   const ig   = document.getElementById('bio-ig')?.value?.trim() || '';
   const yt   = document.getElementById('bio-yt')?.value?.trim() || '';
