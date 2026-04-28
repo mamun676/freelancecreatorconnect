@@ -1685,9 +1685,11 @@ async function loginSuccess(u) {
 
   if (u.role === 'freelancer') {
     await loadFreelancerProfile();
-    renderF('home'); // ← Re-render with real data
+    renderF('home');
   } else {
-    renderC('home'); // ← Re-render with real data
+    await loadFreelancerProfile();
+    updateAvatarsEverywhere();
+    renderC('home');
   }
 
   // 🟢 MASTER REAL-TIME SYSTEM (NO CONNECTION-KILLER BUGS)
@@ -2741,31 +2743,55 @@ async function saveRating(pid) {
 
 function cProfile() {
   const u = CU;
-
+  const links = u.portfolio_links || {};
 
   return `
   <div class="page-head"><h2>My Profile</h2></div>
   <div class="two-col">
-    <div class="det-card">
-      <h4>Personal Info</h4>
-      <div class="fg"><label>Full Name</label><input id="prof-name" value="${u.name}"/></div>
-      <div class="fg"><label>Email</label><input value="${u.email}" disabled style="opacity:.5;"/></div>
-      <div class="fg"><label>Phone</label><input id="prof-phone" value="${u.phone||''}"/></div>
-      <div class="fg"><label>Primary Platform</label>
-        <select id="prof-platform">${['YouTube','Instagram','TikTok','LinkedIn','Multiple'].map(p => `<option${u.platform===p?' selected':''}>${p}</option>`).join('')}</select>
+    <div>
+      <div class="det-card">
+        <h4>Personal Info</h4>
+        <div class="fg"><label>Full Name</label><input id="prof-name" value="${u.name}"/></div>
+        <div class="fg"><label>Email</label><input value="${u.email}" disabled style="opacity:.5;"/></div>
+        <div class="fg"><label>Phone</label><input id="prof-phone" value="${u.phone||''}"/></div>
+        <div class="fg"><label>Primary Platform</label>
+          <select id="prof-platform">${['YouTube','Instagram','TikTok','LinkedIn','Multiple'].map(p => `<option${u.platform===p?' selected':''}>${p}</option>`).join('')}</select>
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
       </div>
-      <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+      <div class="det-card">
+        <h4>Account Stats</h4>
+        ${[['Projects Posted', DB.projects().filter(p=>p.creatorId===CU.id).length],
+           ['Completed',       DB.projects().filter(p=>p.creatorId===CU.id&&p.status==='completed').length],
+           ['Member Since',    new Date(u.createdAt).toLocaleDateString('en-IN',{month:'long',year:'numeric'})],
+           ['Role',            u.role.charAt(0).toUpperCase()+u.role.slice(1)]]
+          .map(([k,v]) => `<div class="info-row"><span class="key">${k}</span><span>${v}</span></div>`).join('')}
+      </div>
     </div>
-    <div class="det-card">
-      <h4>Account Stats</h4>
-      ${[['Projects Posted', DB.projects().filter(p=>p.creatorId===CU.id).length],
-         ['Completed',       DB.projects().filter(p=>p.creatorId===CU.id&&p.status==='completed').length],
-         ['Member Since',    new Date(u.createdAt).toLocaleDateString('en-IN',{month:'long',year:'numeric'})],
-         ['Role',            u.role.charAt(0).toUpperCase()+u.role.slice(1)]]
-        .map(([k,v]) => `<div class="info-row"><span class="key">${k}</span><span>${v}</span></div>`).join('')}
+    <div>
+      <div class="det-card">
+        <h4>Profile Photo</h4>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <div class="sb-avatar sb-av-creator" style="width:80px;height:80px;font-size:2rem;overflow:hidden;" id="prof-photo-preview">
+            ${u.photo_url ? `<img src="${u.photo_url}" style="width:100%;height:100%;object-fit:cover;">` : u.avatar}
+          </div>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0;">
+            Upload New Photo
+            <input type="file" accept="image/*" style="display:none;" onchange="uploadProfilePhoto(this)">
+          </label>
+        </div>
+      </div>
+      <div class="det-card">
+        <h4>Portfolio &amp; Links</h4>
+        <div class="fg"><label>Instagram Profile Link</label><input id="bio-ig" placeholder="https://instagram.com/yourhandle" value="${links.instagram || ''}"></div>
+        <div class="fg"><label>YouTube Channel Link</label><input id="bio-yt" placeholder="https://youtube.com/@yourchannel" value="${links.youtube || ''}"></div>
+        <div class="fg"><label>Work Video Link (Best Work)</label><input id="bio-work" placeholder="Paste a link to your best work (YouTube/Drive/Vimeo)" value="${links.video_link || ''}"></div>
+        <button class="btn btn-primary btn-sm" onclick="savePortfolioLinks()">Save Links</button>
+      </div>
     </div>
   </div>`;
 }
+
 function saveProfile() {
   const name = document.getElementById('prof-name')?.value?.trim();
   if (!name) { showToast('Name cannot be empty', 'err', ''); return; }
@@ -3365,7 +3391,7 @@ function saveFProfile() {
 ══════════════════════════════════════════════ */
 
 async function loadFreelancerProfile() {
-  if (!supaClient || !CU || CU.role !== 'freelancer') return;
+  if (!supaClient || !CU) return;
   try {
     const { data, error } = await supaClient.from('profiles').select('*').eq('id', CU.id).single();
     if (data && !error) {
@@ -3390,6 +3416,14 @@ function updateAvatarsEverywhere() {
       fAvEl.innerHTML = `<img src="${CU.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
     } else {
       fAvEl.textContent = CU.avatar || CU.name.charAt(0).toUpperCase();
+    }
+  }
+  const cAvEl = document.getElementById('c-sb-avatar');
+  if (cAvEl) {
+    if (CU.photo_url) {
+      cAvEl.innerHTML = `<img src="${CU.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else {
+      cAvEl.textContent = CU.avatar || CU.name.charAt(0).toUpperCase();
     }
   }
 }
