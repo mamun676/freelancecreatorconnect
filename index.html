@@ -1429,6 +1429,7 @@ let currentChatChannel = null;
 let currentConversationId = null;
 const renderedMessageIds = new Set();
 let isSubscribing = false;
+let _wfPosting = false;
 
 function toggleChat(){
   const chatList = document.querySelector('.chat-list');
@@ -2768,8 +2769,14 @@ function wfN() {
   
   if (wfStep === 4) { // Choose Editors Step
     if (selFreelancerIds.length === 0) { showToast('Select at least one editor', 'err', ''); return; }
-    
-    setBtn('signup-btn', true, 'Posting...');
+
+    // ── DUPLICATE-SUBMIT GUARD ──
+    if (_wfPosting) return;
+    _wfPosting = true;
+
+    // Disable the real post button immediately so the user sees feedback
+    const postBtn = document.querySelector('#wf-body .btn-primary');
+    if (postBtn) { postBtn.disabled = true; postBtn.textContent = 'Posting…'; }
 
     const newP = { 
         id: pid(), creatorId: CU.id, 
@@ -2805,47 +2812,81 @@ function wfN() {
         priority: newP.priority, 
         status: 'open',
         raw_shared: true, edited_uploaded: false, paid: false
-      }).then(({error}) => { 
+      }).then(async ({error}) => { 
         if(error) {
           showToast('DB Error: ' + error.message, 'err', '');
           const revertedProjs = DB.projects().filter(x => x.id !== newP.id);
           DB.saveProjects(revertedProjs);
-        } // ✅ NAYA CODE:
-else {
-  // Pehle show karo, phir background mein files upload karo
-  showToast('Project Requests Sent! Waiting for a freelancer.', 'ok', '🎉');
-  activeManageProjectId = null;
-  const newProjectFiles_copy = [...newProjectFiles];
-  newProjectFiles = [];
-  cPage('projects', document.querySelector('[data-page=projects]'));
+          _wfPosting = false;
+          const postBtnErr = document.querySelector('#wf-body .btn-primary');
+          if (postBtnErr) { postBtnErr.disabled = false; postBtnErr.textContent = 'Send Requests & Post →'; }
+        } else {
+          const newProjectFiles_copy = [...newProjectFiles];
 
-  // Background mein S3 upload + DB insert
-  (async () => {
-    for (const f of newProjectFiles_copy) {   // ← neeche dekho
-      try {
-        const s3Key = await s3Upload(f.file, 'projects');
-        await supaClient.from('project_attachments').insert({
-          project_id: newP.id,
-          creator_id: CU.id,
-          file_name: f.name,
-          file_url: s3Key,        // ← Real S3 key!
-          file_type: f.type,
-          file_size: f.size,
-          duration: f.duration
-        });
-      } catch (e) {
-        console.warn('Attachment upload failed:', f.name, e);
-      }
-    }
-  })();
-}
+          if (newProjectFiles_copy.length === 0) {
+            // No files to upload — finish immediately
+            showToast('Project Requests Sent! Waiting for a freelancer.', 'ok', '🎉');
+            activeManageProjectId = null;
+            newProjectFiles = [];
+            _wfPosting = false;
+            cPage('projects', document.querySelector('[data-page=projects]'));
+            return;
+          }
+
+          // Show uploading state and wait for every file before finishing
+          showToast('Uploading files, please wait…', 'info', '');
+
+          let failedFile = null;
+          for (const f of newProjectFiles_copy) {
+            try {
+              const s3Key = await s3Upload(f.file, 'projects');
+              const { error: attErr } = await supaClient.from('project_attachments').insert({
+                project_id: newP.id,
+                creator_id: CU.id,
+                file_name: f.name,
+                file_url: s3Key,
+                file_type: f.type,
+                file_size: f.size,
+                duration: f.duration
+              });
+              if (attErr) throw attErr;
+            } catch (e) {
+              failedFile = f.name;
+              break;
+            }
+          }
+
+          if (failedFile) {
+            // At least one file failed — rollback the whole project so the
+            // freelancer never sees a project with missing attachments.
+            showToast('File upload failed: ' + failedFile + '. Please try again.', 'err', '');
+            try { await supaClient.from('projects').delete().eq('id', newP.id); } catch(e) {}
+            const revertedProjs = DB.projects().filter(x => x.id !== newP.id);
+            DB.saveProjects(revertedProjs);
+            const revertedAtts = (DB.attachments() || []).filter(a => a.projectId !== newP.id);
+            DB.saveAttachments(revertedAtts);
+            _wfPosting = false;
+            const postBtnFail = document.querySelector('#wf-body .btn-primary');
+            if (postBtnFail) { postBtnFail.disabled = false; postBtnFail.textContent = 'Send Requests & Post →'; }
+            // newProjectFiles is intentionally NOT cleared so the user can retry
+          } else {
+            // Every file uploaded and every attachment record saved — success
+            showToast('Project Requests Sent! Waiting for a freelancer.', 'ok', '🎉');
+            activeManageProjectId = null;
+            newProjectFiles = [];
+            _wfPosting = false;
+            cPage('projects', document.querySelector('[data-page=projects]'));
+          }
+        }
       });
       return;
     }
     
+    // Local (no supaClient) path
     showToast('Project Requests Sent locally.', 'ok', '');
     activeManageProjectId = null;
     newProjectFiles = [];
+    _wfPosting = false;
     cPage('projects', document.querySelector('[data-page="projects"]'));
     return;
   }
